@@ -1,1 +1,0 @@
-{"display_name": "cpp 14 (xcpp)", "argv": ["xeus/bin/xcpp.js", "-f", "{connection_file}"], "language": "cpp", "metadata": {"debugger": false}, "resources": {"logo-64x64": "xeus/kernels/xcpp/logo-64x64.png", "logo-32x32": "xeus/kernels/xcpp/logo-32x32.png", "logo-svg": "xeus/kernels/xcpp/logo-svg.svg"}}

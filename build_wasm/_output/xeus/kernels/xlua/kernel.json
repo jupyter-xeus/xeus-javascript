@@ -1,1 +1,0 @@
-{"display_name": "Lua  (XLua)", "argv": ["xeus/bin/xlua.js", "-f", "{connection_file}"], "language": "lua", "metadata": {"debugger": false, "lua_extra_package_path": ""}, "resources": {"logo-64x64": "xeus/kernels/xlua/logo-64x64.png", "logo-32x32": "xeus/kernels/xlua/logo-32x32.png", "xeus_small": "xeus/kernels/xlua/xeus_small.svg"}}

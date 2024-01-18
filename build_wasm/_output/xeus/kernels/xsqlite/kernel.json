@@ -1,1 +1,0 @@
-{"display_name": "xsqlite", "argv": ["xeus/bin/xsqlite.js", "-f", "{connection_file}"], "language": "sqlite", "metadata": {}, "resources": {"logo-64x64": "xeus/kernels/xsqlite/logo-64x64.png", "logo-32x32": "xeus/kernels/xsqlite/logo-32x32.png"}}

@@ -1,1 +1,0 @@
-{"display_name": "javascript ES6 (xjavascript)", "argv": ["xeus/bin/xjavascript.js", "-f", "{connection_file}"], "language": "javascript", "metadata": {"debugger": false}, "resources": {"logo-64x64": "xeus/kernels/xjavascript/logo-64x64.png", "logo-32x32": "xeus/kernels/xjavascript/logo-32x32.png", "logo-svg": "xeus/kernels/xjavascript/logo-svg.svg"}}

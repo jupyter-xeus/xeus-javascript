@@ -1,8 +1,0 @@
-/Users/thorstenbeier/src/xeus-javascript/build_wasm/CMakeFiles/xeus-javascript-static.dir
-/Users/thorstenbeier/src/xeus-javascript/build_wasm/CMakeFiles/xjavascript.dir
-/Users/thorstenbeier/src/xeus-javascript/build_wasm/CMakeFiles/edit_cache.dir
-/Users/thorstenbeier/src/xeus-javascript/build_wasm/CMakeFiles/rebuild_cache.dir
-/Users/thorstenbeier/src/xeus-javascript/build_wasm/CMakeFiles/list_install_components.dir
-/Users/thorstenbeier/src/xeus-javascript/build_wasm/CMakeFiles/install.dir
-/Users/thorstenbeier/src/xeus-javascript/build_wasm/CMakeFiles/install/local.dir
-/Users/thorstenbeier/src/xeus-javascript/build_wasm/CMakeFiles/install/strip.dir

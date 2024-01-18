@@ -1,9 +1,0 @@
-/Users/thorstenbeier/micromamba/envs/xeus-wasm-dev/share/jupyter/kernels/xjavascript/kernel.json
-/Users/thorstenbeier/micromamba/envs/xeus-wasm-dev/share/jupyter/kernels/xjavascript/logo-64x64.png
-/Users/thorstenbeier/micromamba/envs/xeus-wasm-dev/share/jupyter/kernels/xjavascript/logo-32x32.png
-/Users/thorstenbeier/micromamba/envs/xeus-wasm-dev/share/jupyter/kernels/xjavascript/logo-svg.svg
-/Users/thorstenbeier/micromamba/envs/xeus-wasm-dev/lib/cmake/xeus-javascript/xeus-javascriptConfig.cmake
-/Users/thorstenbeier/micromamba/envs/xeus-wasm-dev/lib/cmake/xeus-javascript/xeus-javascriptConfigVersion.cmake
-/Users/thorstenbeier/micromamba/envs/xeus-wasm-dev/bin/xjavascript.js
-/Users/thorstenbeier/micromamba/envs/xeus-wasm-dev/bin/xjavascript.js
-/Users/thorstenbeier/micromamba/envs/xeus-wasm-dev/bin/xjavascript.wasm
