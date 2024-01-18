@@ -1,0 +1,1 @@
+{"display_name": "NelSon (xnelson)", "argv": ["xeus/bin/xnelson.js", "-f", "{connection_file}"], "language": "Octave", "metadata": {"debugger": false}, "resources": {"logo-64x64": "xeus/kernels/xnelson/logo-64x64.png", "logo-32x32": "xeus/kernels/xnelson/logo-32x32.png", "xeus_small": "xeus/kernels/xnelson/xeus_small.svg"}}

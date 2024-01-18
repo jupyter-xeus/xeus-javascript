@@ -1,0 +1,404 @@
+{
+    "prefix": "/",
+    "packages": [
+        {
+            "name": "six",
+            "version": "1.16.0",
+            "build": "pyh6c4a22f_0",
+            "filename_stem": "six-1.16.0-pyh6c4a22f_0",
+            "filename": "six-1.16.0-pyh6c4a22f_0.tar.gz"
+        },
+        {
+            "name": "pure_eval",
+            "version": "0.2.2",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "pure_eval-0.2.2-pyhd8ed1ab_0",
+            "filename": "pure_eval-0.2.2-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "iniconfig",
+            "version": "1.1.1",
+            "build": "pyh9f0ad1d_0",
+            "filename_stem": "iniconfig-1.1.1-pyh9f0ad1d_0",
+            "filename": "iniconfig-1.1.1-pyh9f0ad1d_0.tar.gz"
+        },
+        {
+            "name": "pygments",
+            "version": "2.13.0",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "pygments-2.13.0-pyhd8ed1ab_0",
+            "filename": "pygments-2.13.0-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "more-itertools",
+            "version": "9.0.0",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "more-itertools-9.0.0-pyhd8ed1ab_0",
+            "filename": "more-itertools-9.0.0-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "backcall",
+            "version": "0.2.0",
+            "build": "pyh9f0ad1d_0",
+            "filename_stem": "backcall-0.2.0-pyh9f0ad1d_0",
+            "filename": "backcall-0.2.0-pyh9f0ad1d_0.tar.gz"
+        },
+        {
+            "name": "attrs",
+            "version": "22.1.0",
+            "build": "pyh71513ae_1",
+            "filename_stem": "attrs-22.1.0-pyh71513ae_1",
+            "filename": "attrs-22.1.0-pyh71513ae_1.tar.gz"
+        },
+        {
+            "name": "wheel",
+            "version": "0.38.4",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "wheel-0.38.4-pyhd8ed1ab_0",
+            "filename": "wheel-0.38.4-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "requests-wasm-polyfill",
+            "version": "0.3.0",
+            "build": "had7285e_0",
+            "filename_stem": "requests-wasm-polyfill-0.3.0-had7285e_0",
+            "filename": "requests-wasm-polyfill-0.3.0-had7285e_0.tar.gz"
+        },
+        {
+            "name": "xeus-python-shell-raw",
+            "version": "0.6.1",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "xeus-python-shell-raw-0.6.1-pyhd8ed1ab_0",
+            "filename": "xeus-python-shell-raw-0.6.1-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "ptyprocess",
+            "version": "0.7.0",
+            "build": "pyhd3deb0d_0",
+            "filename_stem": "ptyprocess-0.7.0-pyhd3deb0d_0",
+            "filename": "ptyprocess-0.7.0-pyhd3deb0d_0.tar.gz"
+        },
+        {
+            "name": "pickleshare",
+            "version": "0.7.5",
+            "build": "py_1003",
+            "filename_stem": "pickleshare-0.7.5-py_1003",
+            "filename": "pickleshare-0.7.5-py_1003.tar.gz"
+        },
+        {
+            "name": "llvm",
+            "version": "17.0.4",
+            "build": "hd869d1d_3",
+            "filename_stem": "llvm-17.0.4-hd869d1d_3",
+            "filename": "llvm-17.0.4-hd869d1d_3.tar.gz"
+        },
+        {
+            "name": "xeus-python-shell",
+            "version": "0.6.1",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "xeus-python-shell-0.6.1-pyhd8ed1ab_0",
+            "filename": "xeus-python-shell-0.6.1-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "lua",
+            "version": "5.4.6",
+            "build": "hcf391d3_4",
+            "filename_stem": "lua-5.4.6-hcf391d3_4",
+            "filename": "lua-5.4.6-hcf391d3_4.tar.gz"
+        },
+        {
+            "name": "stack_data",
+            "version": "0.6.1",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "stack_data-0.6.1-pyhd8ed1ab_0",
+            "filename": "stack_data-0.6.1-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "backports",
+            "version": "1.0",
+            "build": "py_2",
+            "filename_stem": "backports-1.0-py_2",
+            "filename": "backports-1.0-py_2.tar.gz"
+        },
+        {
+            "name": "libffi",
+            "version": "3.4.2",
+            "build": "hf0568b9_3",
+            "filename_stem": "libffi-3.4.2-hf0568b9_3",
+            "filename": "libffi-3.4.2-hf0568b9_3.tar.gz"
+        },
+        {
+            "name": "xtl",
+            "version": "0.7.5",
+            "build": "h39b2613_1",
+            "filename_stem": "xtl-0.7.5-h39b2613_1",
+            "filename": "xtl-0.7.5-h39b2613_1.tar.gz"
+        },
+        {
+            "name": "ipython",
+            "version": "8.14.0",
+            "build": "py311had7285e_1",
+            "filename_stem": "ipython-8.14.0-py311had7285e_1",
+            "filename": "ipython-8.14.0-py311had7285e_1.tar.gz"
+        },
+        {
+            "name": "xeus-lite",
+            "version": "1.0.3",
+            "build": "h5c9267c_3",
+            "filename_stem": "xeus-lite-1.0.3-h5c9267c_3",
+            "filename": "xeus-lite-1.0.3-h5c9267c_3.tar.gz"
+        },
+        {
+            "name": "emscripten-abi",
+            "version": "3.1.45",
+            "build": "h7b187fe_15",
+            "filename_stem": "emscripten-abi-3.1.45-h7b187fe_15",
+            "filename": "emscripten-abi-3.1.45-h7b187fe_15.tar.gz"
+        },
+        {
+            "name": "executing",
+            "version": "1.2.0",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "executing-1.2.0-pyhd8ed1ab_0",
+            "filename": "executing-1.2.0-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "xeus-python",
+            "version": "0.15.12",
+            "build": "h1be4ea2_2",
+            "filename_stem": "xeus-python-0.15.12-h1be4ea2_2",
+            "filename": "xeus-python-0.15.12-h1be4ea2_2.tar.gz"
+        },
+        {
+            "name": "pugixml",
+            "version": "1.14",
+            "build": "h5c9267c_0",
+            "filename_stem": "pugixml-1.14-h5c9267c_0",
+            "filename": "pugixml-1.14-h5c9267c_0.tar.gz"
+        },
+        {
+            "name": "nlohmann_json",
+            "version": "3.11.3",
+            "build": "h5c9267c_0",
+            "filename_stem": "nlohmann_json-3.11.3-h5c9267c_0",
+            "filename": "nlohmann_json-3.11.3-h5c9267c_0.tar.gz"
+        },
+        {
+            "name": "xwidgets",
+            "version": "0.28.0",
+            "build": "h5c9267c_1",
+            "filename_stem": "xwidgets-0.28.0-h5c9267c_1",
+            "filename": "xwidgets-0.28.0-h5c9267c_1.tar.gz"
+        },
+        {
+            "name": "xeus",
+            "version": "3.1.4",
+            "build": "h5c9267c_3",
+            "filename_stem": "xeus-3.1.4-h5c9267c_3",
+            "filename": "xeus-3.1.4-h5c9267c_3.tar.gz"
+        },
+        {
+            "name": "py",
+            "version": "1.11.0",
+            "build": "pyh6c4a22f_0",
+            "filename_stem": "py-1.11.0-pyh6c4a22f_0",
+            "filename": "py-1.11.0-pyh6c4a22f_0.tar.gz"
+        },
+        {
+            "name": "python",
+            "version": "3.11.3",
+            "build": "h_hash_24_cpython",
+            "filename_stem": "python-3.11.3-h_hash_24_cpython",
+            "filename": "python-3.11.3-h_hash_24_cpython.tar.gz"
+        },
+        {
+            "name": "asttokens",
+            "version": "2.1.0",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "asttokens-2.1.0-pyhd8ed1ab_0",
+            "filename": "asttokens-2.1.0-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "pluggy",
+            "version": "1.0.0",
+            "build": "pyhd8ed1ab_5",
+            "filename_stem": "pluggy-1.0.0-pyhd8ed1ab_5",
+            "filename": "pluggy-1.0.0-pyhd8ed1ab_5.tar.gz"
+        },
+        {
+            "name": "bzip2",
+            "version": "1.0.8",
+            "build": "h12b8776_6",
+            "filename_stem": "bzip2-1.0.8-h12b8776_6",
+            "filename": "bzip2-1.0.8-h12b8776_6.tar.gz"
+        },
+        {
+            "name": "sqlite",
+            "version": "3.37.2",
+            "build": "h73aa708_2",
+            "filename_stem": "sqlite-3.37.2-h73aa708_2",
+            "filename": "sqlite-3.37.2-h73aa708_2.tar.gz"
+        },
+        {
+            "name": "xproperty",
+            "version": "0.11.0",
+            "build": "h5c9267c_1",
+            "filename_stem": "xproperty-0.11.0-h5c9267c_1",
+            "filename": "xproperty-0.11.0-h5c9267c_1.tar.gz"
+        },
+        {
+            "name": "xcanvas",
+            "version": "0.4.1",
+            "build": "h5c9267c_5",
+            "filename_stem": "xcanvas-0.4.1-h5c9267c_5",
+            "filename": "xcanvas-0.4.1-h5c9267c_5.tar.gz"
+        },
+        {
+            "name": "atomicwrites",
+            "version": "1.4.1",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "atomicwrites-1.4.1-pyhd8ed1ab_0",
+            "filename": "atomicwrites-1.4.1-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "pexpect",
+            "version": "4.8.0",
+            "build": "pyh1a96a4e_2",
+            "filename_stem": "pexpect-4.8.0-pyh1a96a4e_2",
+            "filename": "pexpect-4.8.0-pyh1a96a4e_2.tar.gz"
+        },
+        {
+            "name": "prompt-toolkit",
+            "version": "3.0.32",
+            "build": "pyha770c72_0",
+            "filename_stem": "prompt-toolkit-3.0.32-pyha770c72_0",
+            "filename": "prompt-toolkit-3.0.32-pyha770c72_0.tar.gz"
+        },
+        {
+            "name": "pybind11_json",
+            "version": "2.1.12",
+            "build": "hb23ead5_0",
+            "filename_stem": "pybind11_json-2.1.12-hb23ead5_0",
+            "filename": "pybind11_json-2.1.12-hb23ead5_0.tar.gz"
+        },
+        {
+            "name": "setuptools",
+            "version": "65.5.1",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "setuptools-65.5.1-pyhd8ed1ab_0",
+            "filename": "setuptools-65.5.1-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "wcwidth",
+            "version": "0.2.5",
+            "build": "pyh9f0ad1d_2",
+            "filename_stem": "wcwidth-0.2.5-pyh9f0ad1d_2",
+            "filename": "wcwidth-0.2.5-pyh9f0ad1d_2.tar.gz"
+        },
+        {
+            "name": "xeus-lua",
+            "version": "0.7.4",
+            "build": "he62be5e_0",
+            "filename_stem": "xeus-lua-0.7.4-he62be5e_0",
+            "filename": "xeus-lua-0.7.4-he62be5e_0.tar.gz"
+        },
+        {
+            "name": "numpy",
+            "version": "1.25.2",
+            "build": "py311he9a3d86_2",
+            "filename_stem": "numpy-1.25.2-py311he9a3d86_2",
+            "filename": "numpy-1.25.2-py311he9a3d86_2.tar.gz"
+        },
+        {
+            "name": "pybind11",
+            "version": "2.10.4",
+            "build": "hb23ead5_4",
+            "filename_stem": "pybind11-2.10.4-hb23ead5_4",
+            "filename": "pybind11-2.10.4-hb23ead5_4.tar.gz"
+        },
+        {
+            "name": "pytest",
+            "version": "7.1.1",
+            "build": "had7285e_0",
+            "filename_stem": "pytest-7.1.1-had7285e_0",
+            "filename": "pytest-7.1.1-had7285e_0.tar.gz"
+        },
+        {
+            "name": "pyjs",
+            "version": "1.3.2",
+            "build": "hbc1b1e0_2",
+            "filename_stem": "pyjs-1.3.2-hbc1b1e0_2",
+            "filename": "pyjs-1.3.2-hbc1b1e0_2.tar.gz"
+        },
+        {
+            "name": "cpp-argparse",
+            "version": "3.0",
+            "build": "h5c9267c_0",
+            "filename_stem": "cpp-argparse-3.0-h5c9267c_0",
+            "filename": "cpp-argparse-3.0-h5c9267c_0.tar.gz"
+        },
+        {
+            "name": "decorator",
+            "version": "5.1.1",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "decorator-5.1.1-pyhd8ed1ab_0",
+            "filename": "decorator-5.1.1-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "xeus-sqlite",
+            "version": "0.6.2",
+            "build": "h5c9267c_4",
+            "filename_stem": "xeus-sqlite-0.6.2-h5c9267c_4",
+            "filename": "xeus-sqlite-0.6.2-h5c9267c_4.tar.gz"
+        },
+        {
+            "name": "matplotlib-inline",
+            "version": "0.1.6",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "matplotlib-inline-0.1.6-pyhd8ed1ab_0",
+            "filename": "matplotlib-inline-0.1.6-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "pip",
+            "version": "22.3.1",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "pip-22.3.1-pyhd8ed1ab_0",
+            "filename": "pip-22.3.1-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "zlib",
+            "version": "1.2.13",
+            "build": "h12b8776_2",
+            "filename_stem": "zlib-1.2.13-h12b8776_2",
+            "filename": "zlib-1.2.13-h12b8776_2.tar.gz"
+        },
+        {
+            "name": "jedi",
+            "version": "0.18.1",
+            "build": "pyhd8ed1ab_2",
+            "filename_stem": "jedi-0.18.1-pyhd8ed1ab_2",
+            "filename": "jedi-0.18.1-pyhd8ed1ab_2.tar.gz"
+        },
+        {
+            "name": "traitlets",
+            "version": "5.5.0",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "traitlets-5.5.0-pyhd8ed1ab_0",
+            "filename": "traitlets-5.5.0-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "backports.functools_lru_cache",
+            "version": "1.6.4",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "backports.functools_lru_cache-1.6.4-pyhd8ed1ab_0",
+            "filename": "backports.functools_lru_cache-1.6.4-pyhd8ed1ab_0.tar.gz"
+        },
+        {
+            "name": "parso",
+            "version": "0.8.3",
+            "build": "pyhd8ed1ab_0",
+            "filename_stem": "parso-0.8.3-pyhd8ed1ab_0",
+            "filename": "parso-0.8.3-pyhd8ed1ab_0.tar.gz"
+        }
+    ]
+}

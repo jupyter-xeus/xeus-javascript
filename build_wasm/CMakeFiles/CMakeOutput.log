@@ -1,0 +1,18 @@
+The target system is: Emscripten - 1 - x86
+The host system is: Darwin - 22.6.0 - arm64
+Performing C++ SOURCE FILE Test HAS_CPP_17_FLAG succeeded with the following output:
+Change Dir: /Users/thorstenbeier/src/xeus-javascript/build_wasm/CMakeFiles/CMakeScratch/TryCompile-z2vSHn
+
+Run Build Command(s):/Users/thorstenbeier/micromamba/envs/xeus-lite/bin/make -f Makefile cmTC_b496c/fast && /Users/thorstenbeier/micromamba/envs/xeus-lite/bin/make  -f CMakeFiles/cmTC_b496c.dir/build.make CMakeFiles/cmTC_b496c.dir/build
+make[1]: Entering directory '/Users/thorstenbeier/src/xeus-javascript/build_wasm/CMakeFiles/CMakeScratch/TryCompile-z2vSHn'
+Building CXX object CMakeFiles/cmTC_b496c.dir/src.cxx.o
+/Users/thorstenbeier/src/xeus-python/lite/build/emsdk/upstream/emscripten/em++ -DHAS_CPP_17_FLAG  -std=c++17 -MD -MT CMakeFiles/cmTC_b496c.dir/src.cxx.o -MF CMakeFiles/cmTC_b496c.dir/src.cxx.o.d -o CMakeFiles/cmTC_b496c.dir/src.cxx.o -c /Users/thorstenbeier/src/xeus-javascript/build_wasm/CMakeFiles/CMakeScratch/TryCompile-z2vSHn/src.cxx
+Linking CXX executable cmTC_b496c.js
+/Applications/CMake.app/Contents/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b496c.dir/link.txt --verbose=1
+/Users/thorstenbeier/src/xeus-python/lite/build/emsdk/upstream/emscripten/em++ @CMakeFiles/cmTC_b496c.dir/objects1 -o cmTC_b496c.js 
+make[1]: Leaving directory '/Users/thorstenbeier/src/xeus-javascript/build_wasm/CMakeFiles/CMakeScratch/TryCompile-z2vSHn'
+
+
+Source file was:
+int main() { return 0; }
+

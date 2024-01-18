@@ -1,0 +1,11 @@
+{
+  "display_name": "javascript ES6 (xjavascript)",
+  "argv": [
+      "@XEUS_JAVASCRIPT_KERNELSPEC_PATH@xjavascript",
+      "-f",
+      "{connection_file}"
+  ],
+  "language": "javascript",
+  "metadata": {"debugger": false
+  }
+}

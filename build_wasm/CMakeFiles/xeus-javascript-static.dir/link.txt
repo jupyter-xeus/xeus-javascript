@@ -1,0 +1,2 @@
+/Users/thorstenbeier/src/xeus-python/lite/build/emsdk/upstream/emscripten/emar qc libxeus-javascript.a "CMakeFiles/xeus-javascript-static.dir/src/xinterpreter.cpp.o"
+/Users/thorstenbeier/src/xeus-python/lite/build/emsdk/upstream/emscripten/emranlib libxeus-javascript.a
