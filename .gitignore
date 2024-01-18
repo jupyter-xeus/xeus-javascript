@@ -40,5 +40,6 @@ share/jupyter/kernels/xjavascript/kernel.json
 
 # Build directory
 build/
+build_wasm/
 
 bld
