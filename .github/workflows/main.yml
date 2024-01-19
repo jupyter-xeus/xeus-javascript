@@ -79,7 +79,7 @@ jobs:
           export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-javascript-wasm-host
           # build jupyterlite
           jupyter lite build  \
-            --contents= $(pwd)/../notebooks \
+            --contents=notebooks \
             --XeusAddon.prefix=$PREFIX 
 
 
