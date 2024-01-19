@@ -57,7 +57,7 @@ Module["_call_user_code"] =  async function (code) {
 
 
 Module["_complete_line"] = function (code_line){
-    
+
     // remove unwanted left part:
     // ie if code is " if(postM)" then remove " if("
     // ie if code is " postM" then remove " "
@@ -70,11 +70,11 @@ Module["_complete_line"] = function (code_line){
         }
     }
     let pseudo_expression = code_line.substring(code_begin);
-    
+
 
     // pseudo_expression is "fubar.b" "fubar", "fubar." or "fubar['aaa']"
 
-    // find part right of dot / bracket 
+    // find part right of dot / bracket
     // start searching from the right
     const exp_stop_chars = ".]";
 
@@ -142,7 +142,7 @@ Module["_complete_request"] = function (code, curser_pos){
     let line_index = 0;
     let curser_pos_in_line = 0;
     let line_begin = 0;
-    
+
     // loop over lines
     for (let i = 0; i < lines.length; i++) {
        if( curser_pos>=line_begin && curser_pos<=line_begin+lines[i].length){
@@ -166,14 +166,14 @@ Module["_complete_request"] = function (code, curser_pos){
     let line_res = Module["_complete_line"](code_line);
     let matches = line_res.matches;
     let in_line_cursor_start = line_res.cursor_start;
-    
+
     let return_obj = {
         matches : matches,
         cursor_start : line_begin + in_line_cursor_start,
         cursor_end : curser_pos,
         status: line_res.status || "ok"
     };
-    
+
     return JSON.stringify(return_obj);
 
 }

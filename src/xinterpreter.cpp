@@ -1,9 +1,9 @@
 /***************************************************************************
-* Copyright (c) 2024, Thorsten Beier                                  
-*                                                                          
-* Distributed under the terms of the BSD 3-Clause License.                 
-*                                                                          
-* The full license is in the file LICENSE, distributed with this software. 
+* Copyright (c) 2024, Thorsten Beier
+*
+* Distributed under the terms of the BSD 3-Clause License.
+*
+* The full license is in the file LICENSE, distributed with this software.
 ****************************************************************************/
 
 #include <string>
@@ -26,7 +26,7 @@
 namespace nl = nlohmann;
 namespace xeus_javascript
 {
-    
+
     void publish_stdout_stream(const std::string& message)
     {
         // get interpreter
@@ -54,8 +54,8 @@ namespace xeus_javascript
 
         // publish stream
         interpreter.display_data(
-            data["data"], 
-            data["metadata"], 
+            data["data"],
+            data["metadata"],
             data["transient"]
         );
          std::cout<<"display_data_done"<<std::endl;
@@ -73,9 +73,9 @@ namespace xeus_javascript
                                                       bool /*store_history*/,
                                                       nl::json /*user_expressions*/,
                                                       bool /*allow_stdin*/)
-    {   
+    {
         nl::json kernel_res;
-        
+
         auto result_promise = emscripten::val::module_property("_call_user_code")(code);
         auto result = result_promise.await();
         if(result["has_error"].as<bool>()) {
@@ -139,7 +139,7 @@ namespace xeus_javascript
         auto status = result_json["status"];
 
         return xeus::create_complete_reply(
-            matches, 
+            matches,
             cursor_start,
             cursor_end
         );
@@ -149,11 +149,11 @@ namespace xeus_javascript
                                                       int /*cursor_pos*/,
                                                       int /*detail_level*/)
     {
-        return xeus::create_inspect_reply(false/*found*/, 
+        return xeus::create_inspect_reply(false/*found*/,
             {{std::string("text/plain"), std::string("hello!")}}, /*data*/
             {{std::string("text/plain"), std::string("hello!")}}  /*meta-data*/
         );
-         
+
     }
     void interpreter::shutdown_request_impl() {
         //std::cout << "Bye!!" << std::endl;
@@ -175,7 +175,7 @@ namespace xeus_javascript
         const std::string  language_nbconvert_exporter = "";
         const std::string  banner = "xjavascript";
         const bool         debugger = false;
-        
+
         const nl::json     help_links = nl::json::array();
 
 

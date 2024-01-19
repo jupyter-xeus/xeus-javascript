@@ -1,9 +1,9 @@
 /***************************************************************************
-* Copyright (c) 2024, Thorsten Beier                                  
-*                                                                          
-* Distributed under the terms of the BSD 3-Clause License.                 
-*                                                                          
-* The full license is in the file LICENSE, distributed with this software. 
+* Copyright (c) 2024, Thorsten Beier
+*
+* Distributed under the terms of the BSD 3-Clause License.
+*
+* The full license is in the file LICENSE, distributed with this software.
 ****************************************************************************/
 
 
@@ -28,7 +28,7 @@ namespace nl = nlohmann;
 
 namespace xeus_javascript
 {
-    
+
     void publish_stdout_stream(const std::string& message);
     void publish_stderr_stream(const std::string& message);
     void display_data(const std::string& json_str);

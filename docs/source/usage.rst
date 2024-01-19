@@ -60,4 +60,3 @@ And of course widgets
 
 .. image:: binary.gif
    :alt: widgets_binary
-

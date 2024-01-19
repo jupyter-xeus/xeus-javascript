@@ -38,21 +38,21 @@ jobs:
       - name: Setup emsdk
         shell: bash -l {0}
         run: |
-          
+
           emsdk install ${{ matrix.emsdk_ver }}
-          
+
       ################################################################
       # C++ build
       ################################################################
       - name: Build
         shell: bash -l {0}
         run: |
-          
+
           emsdk activate ${{ matrix.emsdk_ver }}
-          
+
           source $CONDA_EMSDK_DIR/emsdk_env.sh
           micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
-          
+
           mkdir build
           pushd build
 
@@ -67,7 +67,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX=$PREFIX                    \
             -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON            \
             ..
-          
+
           make -j${{ steps.cpu-cores.outputs.count }} install
 
       ################################################################
@@ -80,10 +80,10 @@ jobs:
           # build jupyterlite
           jupyter lite build  \
             --contents=notebooks \
-            --XeusAddon.prefix=$PREFIX 
+            --XeusAddon.prefix=$PREFIX
 
 
-    
+
       ################################################################
       # fix permissions
       ################################################################

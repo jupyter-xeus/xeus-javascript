@@ -89,7 +89,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
     if(NOT EMSCRIPTEN)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-parameter -Wextra -Wreorder")
     endif()
-    
+
 
     CHECK_CXX_COMPILER_FLAG("-std=c++17" HAS_CPP_17_FLAG)
     if (HAS_CPP_17_FLAG)
@@ -183,7 +183,7 @@ macro(xeus_javascript_set_kernel_options target_name)
         find_package(Threads)
         target_link_libraries(${target_name} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
     endif()
-    
+
 endmacro()
 
 # Common macro for shared and static library
@@ -229,7 +229,7 @@ macro(xeus_javascript_create_target target_name linkage output_name)
         find_package(Threads) # TODO: add Threads as a dependence of xeus-static?
         target_link_libraries(${target_name} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
     endif()
-    
+
 endmacro()
 
 # xeus-javascript
@@ -278,7 +278,7 @@ if(EMSCRIPTEN)
     xeus_wasm_compile_options(xjavascript)
     xeus_wasm_link_options(xjavascript "web,worker")
 
-    # 
+    #
     target_link_options(xjavascript
         PUBLIC "SHELL: -s NO_EXIT_RUNTIME=1"
         PUBLIC "SHELL: -s ASYNCIFY"
@@ -369,4 +369,3 @@ if(EMSCRIPTEN)
             "$<TARGET_FILE_DIR:xjavascript>/xjavascript.wasm"
             DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
-
