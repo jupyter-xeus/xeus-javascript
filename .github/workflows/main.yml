@@ -11,7 +11,7 @@ on:
     - cron: '0 2 * * *' # run at 2 AM UTC
 
 jobs:
-  emscripten_wasm:
+  emscripten_wasm_build:
 
     runs-on: ubuntu-latest
 
@@ -32,13 +32,18 @@ jobs:
           environment-file: environment-wasm-build.yml
           environment-name: xeus-javascript-wasm-build
 
+      ################################################################
+      #  emsdk itself
+      ################################################################
       - name: Setup emsdk
         shell: bash -l {0}
         run: |
           
           emsdk install ${{ matrix.emsdk_ver }}
           
-
+      ################################################################
+      # C++ build
+      ################################################################
       - name: Build
         shell: bash -l {0}
         run: |
@@ -47,7 +52,7 @@ jobs:
           
           source $CONDA_EMSDK_DIR/emsdk_env.sh
           micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
-
+          
           mkdir build
           pushd build
 
@@ -63,7 +68,60 @@ jobs:
             -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON            \
             ..
           
-          make -j${{ steps.cpu-cores.outputs.count }}
-          
+          make -j${{ steps.cpu-cores.outputs.count }} install
 
-  
+      ################################################################
+      # jupyterlite page
+      ################################################################
+      - name: Build jupyterlite page
+        shell: bash -l {0}
+        run: |
+          export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-javascript-wasm-host
+          # build jupyterlite
+          jupyter lite build  \
+            --contents= $(pwd)/../notebooks \
+            --XeusAddon.prefix=$PREFIX 
+
+
+    
+      ################################################################
+      # fix permissions
+      ################################################################
+      - name: Fix permissions
+        run: |
+          chmod -c -R +rX "build_wasm/_output/" | while read line; do
+            echo "::warning title=Invalid file permissions automatically fixed::$line"
+          done
+
+      ################################################################
+      # upload to github pages
+      ################################################################
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: _output
+
+  # Deploy job (only for the repo and **not** for forks)
+
+  deploy:
+    # Add a dependency to the build job
+    needs: emscripten_wasm_build
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      contents: read   # to read the Pages artifact
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    # Specify runner + deployment step
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main' && github.repository == 'DerThorsten/xeus-javascript'
+        id: deployment
+        uses: actions/deploy-pages@v3 # or specific "vX.X.X" version tag for this action
