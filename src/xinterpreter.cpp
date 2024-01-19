@@ -43,12 +43,29 @@ namespace xeus_javascript
         interpreter.publish_stream("stderr", message);
     }
 
-    interpreter::interpreter()
+    void display_data(const std::string& json_str)
     {
-        std::cout<<"V19"<<std::endl;
-        xeus::register_interpreter(this);
+        // get interpreter
+        auto & interpreter = xeus::get_interpreter();
+
+        auto data = nl::json::parse(json_str);
+
+        std::cout<<"display_data"<<std::endl;
+
+        // publish stream
+        interpreter.display_data(
+            data["data"], 
+            data["metadata"], 
+            data["transient"]
+        );
+         std::cout<<"display_data_done"<<std::endl;
     }
 
+    interpreter::interpreter()
+    {
+        std::cout<<"V34"<<std::endl;
+        xeus::register_interpreter(this);
+    }
 
     nl::json interpreter::execute_request_impl(int execution_counter, // Typically the cell number
                                                       const  std::string & code, // Code to execute
@@ -103,30 +120,45 @@ namespace xeus_javascript
     nl::json interpreter::complete_request_impl(const std::string&  code,
                                                      int cursor_pos)
     {
-        // todo
-        
+
+        auto result_json_str_js = emscripten::val::module_property("_complete_request")(code, cursor_pos);
+        auto result_json_str = result_json_str_js.as<std::string>();
+
+        if(result_json_str.empty()) {
+            return xeus::create_complete_reply(
+                nl::json::array(),  /*matches*/
+                cursor_pos,         /*cursor_start*/
+                cursor_pos          /*cursor_end*/
+            );
+        }
+
+        auto result_json = nl::json::parse(result_json_str);
+        auto matches = result_json["matches"];
+        auto cursor_start = result_json["cursor_start"];
+        auto cursor_end = result_json["cursor_end"];
+        auto status = result_json["status"];
+
         return xeus::create_complete_reply(
-            nl::json::array(),  /*matches*/
-            cursor_pos,         /*cursor_start*/
-            cursor_pos          /*cursor_end*/
+            matches, 
+            cursor_start,
+            cursor_end
         );
-        
     }
 
     nl::json interpreter::inspect_request_impl(const std::string& /*code*/,
                                                       int /*cursor_pos*/,
                                                       int /*detail_level*/)
     {
-        
-        return xeus::create_inspect_reply(true/*found*/, 
+        return xeus::create_inspect_reply(false/*found*/, 
             {{std::string("text/plain"), std::string("hello!")}}, /*data*/
             {{std::string("text/plain"), std::string("hello!")}}  /*meta-data*/
         );
          
     }
     void interpreter::shutdown_request_impl() {
-        std::cout << "Bye!!" << std::endl;
+        //std::cout << "Bye!!" << std::endl;
     }
+
 
     nl::json interpreter::kernel_info_request_impl()
     {
@@ -141,7 +173,8 @@ namespace xeus_javascript
         const std::string  language_pygments_lexer = "";
         const std::string  language_codemirror_mode = "";
         const std::string  language_nbconvert_exporter = "";
-        const std::string  banner = "xjavascript";const bool         debugger = false;
+        const std::string  banner = "xjavascript";
+        const bool         debugger = false;
         
         const nl::json     help_links = nl::json::array();
 

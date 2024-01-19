@@ -22,8 +22,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
     xeus::export_kernel<interpreter_type>("xkernel");
 
 
-    emscripten::function("publish_stdout_stream", &xeus_javascript::publish_stdout_stream);
-    emscripten::function("publish_stderr_stream", &xeus_javascript::publish_stderr_stream);
+    emscripten::function("_publish_stdout_stream", &xeus_javascript::publish_stdout_stream);
+    emscripten::function("_publish_stderr_stream", &xeus_javascript::publish_stderr_stream);
+    emscripten::function("_display_data", &xeus_javascript::display_data);
 
 }
 
