@@ -62,7 +62,7 @@ namespace xeus_javascript
 
     interpreter::interpreter()
     {
-        std::cout<<"V37"<<std::endl;
+        std::cout<<"V44"<<std::endl;
         xeus::register_interpreter(this);
     }
 

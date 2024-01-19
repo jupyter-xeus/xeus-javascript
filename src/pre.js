@@ -1,22 +1,24 @@
 Module["_make_async_from_code"] = function (code) {
 
-
-
-
-
-
-
     let async_function = Function(`
         const afunc = async function(){
-
 
             function __storeVars(target) {
                 return new Proxy(target, {
                   has(target, prop) { return true; },
-                  get(target, prop) { return (prop in target ? target : globalThis)[prop]; }
+                  get(target, prop) {
+                    if(prop in target){
+                        return target[prop];
+                    }
+                    else{
+                        if (typeof globalThis[prop] === 'function') {
+                            return globalThis[prop].bind(globalThis);
+                        }
+                        return globalThis[prop];
+                    }
+                 }
                 });
             }
-
             let __stored_vars = {};
 
             with(__storeVars(__stored_vars)) {
