@@ -20,7 +20,6 @@
 // embind
 #include <emscripten/bind.h>
 
-
 #include <sstream>
 
 namespace nl = nlohmann;
@@ -50,7 +49,7 @@ namespace xeus_javascript
 
         auto data = nl::json::parse(json_str);
 
-        std::cout<<"display_data"<<std::endl;
+        // std::cout<<"display_data"<<std::endl;
 
         // publish stream
         interpreter.display_data(
@@ -63,7 +62,7 @@ namespace xeus_javascript
 
     interpreter::interpreter()
     {
-        std::cout<<"V34"<<std::endl;
+        std::cout<<"V37"<<std::endl;
         xeus::register_interpreter(this);
     }
 
