@@ -1,34 +1,42 @@
 Module["_make_async_from_code"] = function (code) {
 
-    const code_ast = Module["_ast_parse"](code);
+    try{
+    var code_ast = Module["_ast_parse"](code);
+    }
+    catch(err){
+        console.log("error parsing code", err);
+        throw err;
+    }
     let extra_code = [];
     for(const node of code_ast.body){
         if(node.type == "FunctionDeclaration")
         {
             const  name = node.id.name;
-            extra_code.push(`globalThis[\'${name}\'] = eval(${name})`);
+            extra_code.push(`globalThis[\"${name}\"] = ${name};`);
         }
         else if(node.type == "VariableDeclaration")
         {
             const  name = node.declarations[0].id.name;
-            extra_code.push(`globalThis[\'${name}\'] = eval(${name})`);
+            extra_code.push(`globalThis[\"${name}\"] = ${name};`);
         }
     }
     const ec = extra_code.join('\n');
     const total_code =  code.concat('\n', ec);
 
+    //console.log("total_code", total_code);
 
-    let async_function = Function(`
-        const afunc = async function(){
-            ${total_code}
-        }
-        return afunc;
+
+    let async_function = Function(`const afunc = async function(){
+        ${total_code}
+    };
+    return afunc;
     `)();
     return async_function;
 }
 
 Module["_ast_parse_options"] = {
-    ranges: true
+    ranges: true,
+    module: true,
 };
 
 Module["_ast_parse"] = function (code) {
@@ -88,6 +96,8 @@ Module["_configure"] = function () {
 }
 
 Module["_call_user_code"] =  async function (code) {
+
+
 
     try{
         const async_function =  Module["_make_async_from_code"](code);

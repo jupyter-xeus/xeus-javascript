@@ -64,7 +64,7 @@ namespace xeus_javascript
 
     interpreter::interpreter()
     {
-        std::cout<<"Welcome to the 60th iteration of this file kernel (due to the service worker caching I need to print this to keep sanity)"<<std::endl;
+        std::cout<<"73th iteration of this file kernel (due to the service worker caching I need to print this to keep sanity)"<<std::endl;
         xeus::register_interpreter(this);
     }
 
