@@ -19,6 +19,7 @@
 
 // embind
 #include <emscripten/bind.h>
+#include <emscripten/emscripten.h>
 
 #include <sstream>
 
@@ -51,6 +52,7 @@ namespace xeus_javascript
 
         // std::cout<<"display_data"<<std::endl;
 
+
         // publish stream
         interpreter.display_data(
             data["data"],
@@ -62,7 +64,7 @@ namespace xeus_javascript
 
     interpreter::interpreter()
     {
-        std::cout<<"V44"<<std::endl;
+        std::cout<<"Welcome to the 60th iteration of this file kernel (due to the service worker caching I need to print this to keep sanity)"<<std::endl;
         xeus::register_interpreter(this);
     }
 
@@ -74,6 +76,8 @@ namespace xeus_javascript
                                                       bool /*allow_stdin*/)
     {
         nl::json kernel_res;
+
+
 
         auto result_promise = emscripten::val::module_property("_call_user_code")(code);
         auto result = result_promise.await();
@@ -100,7 +104,8 @@ namespace xeus_javascript
         }
 
 
-       return xeus::create_successful_reply(nl::json::array(), nl::json::object());
+
+        return xeus::create_successful_reply(nl::json::array(), nl::json::object());
     }
 
     void interpreter::configure_impl()

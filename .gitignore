@@ -43,3 +43,6 @@ build/
 build_wasm/
 
 bld
+
+#  macOS
+.DS_Store

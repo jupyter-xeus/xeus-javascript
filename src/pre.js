@@ -1,40 +1,67 @@
 Module["_make_async_from_code"] = function (code) {
 
+    const code_ast = Module["_ast_parse"](code);
+    let extra_code = [];
+    for(const node of code_ast.body){
+        if(node.type == "FunctionDeclaration")
+        {
+            const  name = node.id.name;
+            extra_code.push(`globalThis[\'${name}\'] = eval(${name})`);
+        }
+        else if(node.type == "VariableDeclaration")
+        {
+            const  name = node.declarations[0].id.name;
+            extra_code.push(`globalThis[\'${name}\'] = eval(${name})`);
+        }
+    }
+    const ec = extra_code.join('\n');
+    const total_code =  code.concat('\n', ec);
+
+
     let async_function = Function(`
         const afunc = async function(){
-
-            function __storeVars(target) {
-                return new Proxy(target, {
-                  has(target, prop) { return true; },
-                  get(target, prop) {
-                    if(prop in target){
-                        return target[prop];
-                    }
-                    else{
-                        if (typeof globalThis[prop] === 'function') {
-                            return globalThis[prop].bind(globalThis);
-                        }
-                        return globalThis[prop];
-                    }
-                 }
-                });
-            }
-            let __stored_vars = {};
-
-            with(__storeVars(__stored_vars)) {
-                ${code}
-            }
-            for (const [key, value] of Object.entries(__stored_vars)) {
-                globalThis[key] = value
-            }
+            ${total_code}
         }
         return afunc;
     `)();
     return async_function;
 }
 
+Module["_ast_parse_options"] = {
+    ranges: true
+};
+
+Module["_ast_parse"] = function (code) {
+    return globalThis["meriyah"].parseScript(code, Module["_ast_parse_options"]);
+}
+
 Module["_configure"] = function () {
-    _clog = console.log;
+
+    console.log("import meriyah");
+    const url="https://cdn.jsdelivr.net/npm/meriyah@4.3.9/dist/meriyah.umd.min.js"
+    importScripts(url);
+
+
+
+    globalThis.ijs
+    globalThis.pprint = function(...args){
+        // stringify all with 2 spaces
+        // and join with space
+        // and add newline at the end
+
+        let msg = ""
+        for (let i = 0; i < args.length; i++) {
+            msg += `${JSON.stringify(args[i], null, 2)}`;
+            if (i < args.length - 1) {
+                msg += " ";
+            }
+        }
+        Module["_publish_stdout_stream"](`${msg}\n`);
+    }
+    // alias
+    globalThis.pp = globalThis.pprint;
+
+
     console.log = function (... args) {
         let msg = ""
         for (let i = 0; i < args.length; i++) {
@@ -45,7 +72,6 @@ Module["_configure"] = function () {
         }
         Module["_publish_stdout_stream"](`${msg}\n`);
     }
-    _cerr = console.error;
     console.error = function (... args) {
         let msg = ""
         for (let i = 0; i < args.length; i++) {
@@ -62,6 +88,7 @@ Module["_configure"] = function () {
 }
 
 Module["_call_user_code"] =  async function (code) {
+
     try{
         const async_function =  Module["_make_async_from_code"](code);
         await async_function();
@@ -70,6 +97,31 @@ Module["_call_user_code"] =  async function (code) {
         }
     }
     catch(err){
+
+        // if the error is an integer,  then
+        // its a c++ exception ptr
+        // so we need to get the error message
+
+        if(typeof err === "number"){
+            console.log("catched c++ exception", err);
+            let msg = Module["get_exception_message"](err);
+
+            // if promise
+            if(msg instanceof Promise){
+                console.log("awaiting promise");
+                msg = await msg;
+            }
+
+
+            console.log("msg", msg);
+            return{
+                error_type: "C++ Exception",
+                error_message: `${msg}`,
+                error_stack: "",
+                has_error: true
+            }
+        }
+
         return{
             error_type: `${err.name || "UnkwownError"}`,
             error_message: `${err.message || ""}`,
@@ -77,6 +129,7 @@ Module["_call_user_code"] =  async function (code) {
             has_error: true
         }
     }
+
 }
 
 

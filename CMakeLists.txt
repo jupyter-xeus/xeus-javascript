@@ -284,6 +284,7 @@ if(EMSCRIPTEN)
         PUBLIC "SHELL: -s ASYNCIFY"
         PUBLIC "SHELL: -s FORCE_FILESYSTEM=1"
         PUBLIC "SHELL: --pre-js ${CMAKE_CURRENT_SOURCE_DIR}/src/pre.js"
+        PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/src/post.js"
     )
 endif()
 
