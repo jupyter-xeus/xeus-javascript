@@ -60,8 +60,24 @@ Module["_make_async_from_code"] = function (code) {
     }
 
 
-    // console.log("code_to_use", code_to_use);
-
+    // handle import statements (in reverse order)
+    // so that the line numbers stay correct
+    for(let i=code_ast.body.length-1; i>=0; i--){
+        const node = code_ast.body[i];
+        if(node.type == "ImportDeclaration"){
+            // most simple case, no specifiers
+            if(node.specifiers.length == 0){
+                const start = node.start;
+                const end = node.end;
+                if(node.source.type != "Literal"){
+                    throw "import source is not a literal";
+                }
+                const module_name = node.source.value;
+                const new_code_of_node = `importScripts("${module_name}");`;
+                code_to_use = code_to_use.substring(0, start) + new_code_of_node + code_to_use.substring(end);
+            }
+        }
+    }
 
     let async_function = Function(`const afunc = async function(){
         ${code_to_use}
@@ -266,7 +282,7 @@ Module["_complete_line"] = function (code_line){
 }
 
 Module["_complete_request"] = function (code, curser_pos){
-    _clog("_complete_request", code, curser_pos);
+
 
 
     // split code into lines
@@ -315,13 +331,18 @@ Module["_complete_request"] = function (code, curser_pos){
 Module['ijs'] = {
     display : {
         display: function (data, metadata={}, transient={}) {
-            // json stringify
-            str_obj = JSON.stringify({
-                data: data,
-                metadata: metadata,
-                transient: transient
-            });
-            Module["_display_data"](str_obj);
+            try{
+                // json stringify
+                str_obj = JSON.stringify({
+                    data: data,
+                    metadata: metadata,
+                    transient: transient
+                });
+                Module["_display_data"](str_obj);
+            }
+            catch(err){
+                Module["_publish_stderr_stream"](`display error: ${err}\n`);
+            }
         },
         mime_type: function (mime_type, data) {
             this.display({ mime_type: data });
@@ -330,7 +351,12 @@ Module['ijs'] = {
             this.display({ "text/html": html });
         },
         text: function (text) {
-            this.display({ "text/plain":  `${text}` });
+            try{
+                this.display({ "text/plain": `${text}` });
+            }
+            catch(err){
+                Module["_publish_stderr_stream"](`display error: ${err}\n`);
+            }
         },
         json: function (json) {
             this.display({ "application/json": json });
@@ -342,54 +368,80 @@ Module['ijs'] = {
             this.display({ "text/latex": latex });
         },
         best_guess: function (data) {
-            if(data instanceof String){
-                this.text(data);
-            }
-            else if(data instanceof Number){
-                this.text(data);
-            }
-            else if(data instanceof Boolean){
-                this.text(data);
-            }
-            else if(data instanceof Array){
-                try{
-                    this.json(data);
-                }
-                catch(err){
+            try{
+                if(data instanceof String){
                     this.text(data);
                 }
-            }
-            else if(data instanceof Object){
-                // if object has "data" field try to display it via the "display" method
-                if(data.hasOwnProperty("data")){
-
+                else if(data instanceof Number){
+                    this.text(data);
+                }
+                else if(data instanceof Boolean){
+                    this.text(data);
+                }
+                else if(data instanceof Array){
                     try{
-                        this.display(data,
-                            data.hasOwnProperty("metadata") ? data.metadata : {},
-                            data.hasOwnProperty("transient") ? data.transient : {}
-                        );
-                        return;
+                        this.json(data);
                     }
                     catch(err){
-                        // just fall through
+                        this.text(data);
                     }
                 }
+                else if(data instanceof Object){
 
-                try{
-                    this.json(data);
+                    let fixed_data = { ... data };
+
+
+                    // if object has "data" field try to display it via the "display" method
+                    if(fixed_data.hasOwnProperty("data")){
+
+                        try{
+                            this.display(fixed_data,
+                                fixed_data.hasOwnProperty("metadata") ? fixed_data.metadata : {},
+                                fixed_data.hasOwnProperty("transient") ? fixed_data.transient : {}
+                            );
+                            return;
+                        }
+                        catch(err){
+                            // just fall through
+                        }
+                    }
+
+                    try{
+                        this.json(fixed_data);
+                    }
+                    catch(err){
+                        this.text(fixed_data);
+                    }
                 }
-                catch(err){
-                    this.text(data);
+                else{
+                    try{
+                        this.text(data);
+                    }
+                    catch(err){
+                        this.text(data);
+                    }
                 }
             }
-            else{
-                try{
-                    this.text(data);
-                }
-                catch(err){
-                    this.text(data);
-                }
+            catch(err){
+                Module["_publish_stderr_stream"](`display error: ${err}\n`);
             }
         }
     },
 }
+
+
+// function transform_import_statement_to_dynamic_imports(import_statement){
+//     // convert  the following import statements into dynamic imports
+//     // import * as name from "module-name";                                             // => const name = await import("module-name");
+//     // import { export1 } from "module-name";                                           // => const { export1 } = await import("module-name");
+//     // import { export1 as alias1 } from "module-name";                                 // => const { export1: alias1 } = await import("module-name");
+//     // import { default as alias } from "module-name";
+//     // import { export1, export2 } from "module-name";
+//     // import { export1, export2 as alias2, /* … */ } from "module-name";
+//     // import { "string name" as alias } from "module-name";
+//     // import defaultExport, { export1, /* … */ } from "module-name";
+//     // import defaultExport, * as name from "module-name";                              //
+//     // import "module-name";                                                            // => await import("module-name");
+
+
+// }
