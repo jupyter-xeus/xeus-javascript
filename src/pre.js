@@ -1,10 +1,17 @@
 Module["_make_async_from_code"] = function (code) {
 
+    if(code.length == 0){
+        return {
+            async_function: async function(){},
+            with_return: false
+        };
+    }
+
+    let code_to_use = code;
     try{
-    var code_ast = Module["_ast_parse"](code);
+        var code_ast = Module["_ast_parse"](code);
     }
     catch(err){
-        console.log("error parsing code", err);
         throw err;
     }
     let extra_code = [];
@@ -20,18 +27,51 @@ Module["_make_async_from_code"] = function (code) {
             extra_code.push(`globalThis[\"${name}\"] = ${name};`);
         }
     }
-    const ec = extra_code.join('\n');
-    const total_code =  code.concat('\n', ec);
 
-    //console.log("total_code", total_code);
+    // is the very last character a semicolon?
+    const last_char_is_semicolon =  code_to_use[code_to_use.length-1] == ";";
+
+
+    // get the last node
+    const last_node = code_ast.body[code_ast.body.length-1];
+
+    // if the last node is an expression statement
+    // then we need to add a return statement
+    // so that the expression gets returned
+    let with_return = false;
+    if(!last_char_is_semicolon && last_node.type == "ExpressionStatement" && last_node.expression.type != "AssignmentExpression"){
+
+        const last_node_start = last_node.start;
+        const last_node_end = last_node.end;
+
+        const code_of_last_node = code_to_use.substring(last_node_start, last_node_end);
+
+        const new_code_of_last_node = `return  ${code_of_last_node};`;
+
+        code_to_use = code_to_use.substring(0, last_node_start) + ";" +
+            extra_code.join('\n') +
+            new_code_of_last_node + code_to_use.substring(last_node_end);
+        with_return = true;
+    }
+    else
+    {
+        const ec = extra_code.join('\n');
+        code_to_use = code_to_use.concat('\n', ec);
+    }
+
+
+    // console.log("code_to_use", code_to_use);
 
 
     let async_function = Function(`const afunc = async function(){
-        ${total_code}
+        ${code_to_use}
     };
     return afunc;
     `)();
-    return async_function;
+    return {
+        async_function: async_function,
+        with_return: with_return
+    };
 }
 
 Module["_ast_parse_options"] = {
@@ -100,8 +140,15 @@ Module["_call_user_code"] =  async function (code) {
 
 
     try{
-        const async_function =  Module["_make_async_from_code"](code);
-        await async_function();
+        let as
+        const ret = Module["_make_async_from_code"](code);
+        const async_function = ret.async_function;
+        let result = await async_function();
+        if(ret.with_return){
+            // console.log(result);
+            Module["ijs"]["display"]["best_guess"](result);
+        }
+
         return {
             has_error: false
         }
@@ -267,7 +314,7 @@ Module["_complete_request"] = function (code, curser_pos){
 
 Module['ijs'] = {
     display : {
-        _display: function (data, metadata={}, transient={}) {
+        display: function (data, metadata={}, transient={}) {
             // json stringify
             str_obj = JSON.stringify({
                 data: data,
@@ -277,22 +324,72 @@ Module['ijs'] = {
             Module["_display_data"](str_obj);
         },
         mime_type: function (mime_type, data) {
-            this._display({ mime_type: data });
+            this.display({ mime_type: data });
         },
         html: function (html) {
-            this._display({ "text/html": html });
+            this.display({ "text/html": html });
         },
         text: function (text) {
-            this._display({ "text/plain": text });
+            this.display({ "text/plain":  `${text}` });
         },
         json: function (json) {
-            this._display({ "application/json": json });
+            this.display({ "application/json": json });
         },
         svg: function (svg) {
-            this._display({ "image/svg+xml": svg });
+            this.display({ "image/svg+xml": svg });
         },
         latex: function (latex) {
-            this._display({ "text/latex": latex });
+            this.display({ "text/latex": latex });
+        },
+        best_guess: function (data) {
+            if(data instanceof String){
+                this.text(data);
+            }
+            else if(data instanceof Number){
+                this.text(data);
+            }
+            else if(data instanceof Boolean){
+                this.text(data);
+            }
+            else if(data instanceof Array){
+                try{
+                    this.json(data);
+                }
+                catch(err){
+                    this.text(data);
+                }
+            }
+            else if(data instanceof Object){
+                // if object has "data" field try to display it via the "display" method
+                if(data.hasOwnProperty("data")){
+
+                    try{
+                        this.display(data,
+                            data.hasOwnProperty("metadata") ? data.metadata : {},
+                            data.hasOwnProperty("transient") ? data.transient : {}
+                        );
+                        return;
+                    }
+                    catch(err){
+                        // just fall through
+                    }
+                }
+
+                try{
+                    this.json(data);
+                }
+                catch(err){
+                    this.text(data);
+                }
+            }
+            else{
+                try{
+                    this.text(data);
+                }
+                catch(err){
+                    this.text(data);
+                }
+            }
         }
     },
 }
