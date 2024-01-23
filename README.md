@@ -7,6 +7,9 @@
 
 `xeus-javascript`  works only in jupyterlite!
 
+Try it!
+https://derthorsten.github.io/xeus-javascript/lab/index.html?path=xeus-javascript.ipynb
+
 ## License
 
 This software is licensed under the `BSD 3-Clause License`. See the [LICENSE](LICENSE)
