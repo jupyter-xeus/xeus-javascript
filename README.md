@@ -3,9 +3,8 @@
 [![Build Status](https://github.com/DerThorsten/xeus-javascript/actions/workflows/main.yml/badge.svg)](https://github.com/DerThorsten/xeus-javascript/actions/workflows/main.yml)
 
 [![Documentation Status](http://readthedocs.org/projects/xeus-javascript/badge/?version=latest)](https://xeus-javascriptreadthedocs.io/en/latest/?badge=latest)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/DerThorsten/xeus-javascript/main?urlpath=/lab/tree/notebooks/xeus-javascript.ipynb)
 
-[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://derthorsten.github.io/xeus-javascript/lab/index.html?path=xeus-javascript.ipynb)
+[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://jupyter-xeus.github.io/xeus-javascript/lab/index.html?path=xeus-javascript.ipynb)
 
 
 `xeus-javascript`  works only in jupyterlite!
