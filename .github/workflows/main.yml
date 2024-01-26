@@ -104,6 +104,9 @@ jobs:
   # Deploy job (only for the repo and **not** for forks)
 
   deploy:
+    # only run on main branch
+    if: github.ref == 'refs/heads/main' && github.repository == 'DerThorsten/xeus-javascript'
+
     # Add a dependency to the build job
     needs: emscripten_wasm_build
 
