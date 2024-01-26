@@ -119,25 +119,100 @@ Module["_handle_last_statement"] = function (
 Module["_rewrite_import_statements"] = function (code, ast)
 {
     let modified_user_code = code;
+    let code_add_to_global_scope = "";
     // handle import statements (in reverse order)
     // so that the line numbers stay correct
     for(let i=ast.body.length-1; i>=0; i--){
         const node = ast.body[i];
         if(node.type == "ImportDeclaration"){
-            // most simple case, no specifiers
+
+            const import_source = node.source.value;
+
             if(node.specifiers.length == 0){
+                // import nothing, only side effects
                 const start = node.start;
                 const end = node.end;
                 if(node.source.type != "Literal"){
                     throw Error("import source is not a literal");
                 }
-                const module_name = node.source.value;
-                const new_code_of_node = `importScripts("${module_name}");`;
+                const new_code_of_node = `await import("${import_source}");\n`;
                 modified_user_code = modified_user_code.substring(0, start) + new_code_of_node + modified_user_code.substring(end);
             }
+            else{
+
+                let has_default_import = false;
+                let default_import_name = "";
+
+                let has_namespace_import = false;
+                let namespace_import_name = "";
+
+                let imported_names = [];
+                let local_names = [];
+
+                // get imported and local names
+                for(const specifier of node.specifiers){
+                    Module["clog"](specifier.type);
+                    if(specifier.type == "ImportSpecifier"){
+                        if(specifier.imported.name == "default"){
+                            has_default_import = true;
+                            default_import_name = specifier.local.name;
+                        }
+                        else{
+                            imported_names.push(specifier.imported.name);
+                            local_names.push(specifier.local.name);
+                        }
+                    }
+                    else if(specifier.type == "ImportDefaultSpecifier"){
+                        has_default_import = true;
+                        default_import_name = specifier.local.name;
+                    }
+                    else if(specifier.type == "ImportNamespaceSpecifier"){
+                        has_namespace_import = true;
+                        namespace_import_name = specifier.local.name;
+
+                    }
+                    else{
+                        throw Error(`unknown specifier type ${specifier.type}`);
+                    }
+                }
+
+                let new_code_of_node = "";
+                if(has_default_import){
+                    new_code_of_node += `const { default: ${default_import_name} } = await import("${import_source}");\n`;
+                    code_add_to_global_scope += `globalThis[\"${default_import_name}\"] = ${default_import_name};\n`;
+                }
+
+                if(has_namespace_import){
+                    new_code_of_node += `const ${namespace_import_name} = await import("${import_source}");\n`;
+                    code_add_to_global_scope += `globalThis[\"${namespace_import_name}\"] = ${namespace_import_name};\n`;
+                }
+
+
+                if(imported_names.length > 0){
+                    new_code_of_node += `const { `;
+                    for(let i=0; i<imported_names.length; i++){
+                        const imported_name = imported_names[i];
+                        const local_name = local_names[i];
+                        new_code_of_node += `${imported_name}`;
+                        code_add_to_global_scope += `globalThis[\"${local_name}\"] = ${imported_name};\n`;
+                        if(i<imported_names.length-1){
+                            new_code_of_node += ", ";
+                        }
+                    }
+                    new_code_of_node += `} = await import("${import_source}");\n`;
+                }
+
+                modified_user_code = modified_user_code.substring(0, node.start) + new_code_of_node + modified_user_code.substring(node.end);
+
+            }
+
+
         }
     }
-    return modified_user_code;
+    return {
+        modified_user_code: modified_user_code,
+        code_add_to_global_scope: code_add_to_global_scope
+    };
 }
 
 
@@ -155,7 +230,7 @@ Module["_make_async_from_code"] = function (code) {
     console.dir(ast.body, {depth: null});
 
     // code to add top level variables to global scope
-    const code_add_to_global_scope = Module["_add_to_global_scope"](ast);
+    let code_add_to_global_scope = Module["_add_to_global_scope"](ast);
 
     // handle last statement / add return if needed
     let {with_return, modified_user_code, extra_return_code} = Module["_handle_last_statement"](
@@ -164,7 +239,9 @@ Module["_make_async_from_code"] = function (code) {
     );
 
     // handle import statements
-    modified_user_code = Module["_rewrite_import_statements"](modified_user_code, ast);
+    const res = Module["_rewrite_import_statements"](modified_user_code, ast);
+    modified_user_code = res.modified_user_code;
+    code_add_to_global_scope += res.code_add_to_global_scope;
 
 
     const combined_code = `
