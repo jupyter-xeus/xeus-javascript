@@ -104,6 +104,9 @@ jobs:
   # Deploy job (only for the repo and **not** for forks)
 
   deploy:
+    # only run on main branch
+    if: github.ref == 'refs/heads/main' && github.repository == 'xeus-javascript/xeus-javascript'
+
     # Add a dependency to the build job
     needs: emscripten_wasm_build
 
@@ -122,6 +125,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/main' && github.repository == 'DerThorsten/xeus-javascript'
         id: deployment
         uses: actions/deploy-pages@v3 # or specific "vX.X.X" version tag for this action
