@@ -18,11 +18,25 @@ Module["_add_to_global_scope"] = function (ast) {
             const declaration_type = declaration.id.type;
 
             if(declaration_type == "ObjectPattern"){
-                // get all the keys
-                const keys = declaration.id.properties.map((prop)=>prop.key.name);
-                Module["clog"]("ObjectPatternKeys",keys);
-                for(const key of keys){
-                    extra_code.push(`globalThis[\"${key}\"] = ${key};`);
+
+
+                // manual loop
+                for(const prop of declaration.id.properties){
+                    const key = prop.key.name;
+
+                    // in cases like const { default: defaultExport } = await import(url);
+                    if(key == "default"){
+                        // get the value
+                        if(!prop.value.type == "Identifier"){
+                            throw Error("default value is not an identifier");
+                        }
+                        const value = prop.value.name;
+                        extra_code.push(`globalThis[\"${value}\"] = ${value};`);
+                    }
+                    // cases like const { a,b } = { a: 1, b: 2 , c: 3}
+                    else{
+                        extra_code.push(`globalThis[\"${key}\"] = ${key};`);
+                    }
                 }
 
             }
@@ -36,7 +50,7 @@ Module["_add_to_global_scope"] = function (ast) {
             }
             else if(declaration_type == "Identifier"){
 
-                const  name = node.declarations[0].id.name;
+                const  name = declaration.id.name;
                 extra_code.push(`globalThis[\"${name}\"] = ${name};`);
             }
             else{
