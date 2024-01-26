@@ -79,8 +79,6 @@ Module["_handle_last_statement"] = function (
     code_user,
     ast
 ) {
-
-
     // is the very last character a semicolon?
     const last_char_is_semicolon =  code_user[code_user.length-1] == ";";
 
@@ -118,7 +116,29 @@ Module["_handle_last_statement"] = function (
 
 }
 
-
+Module["_rewrite_import_statements"] = function (code, ast)
+{
+    let modified_user_code = code;
+    // handle import statements (in reverse order)
+    // so that the line numbers stay correct
+    for(let i=ast.body.length-1; i>=0; i--){
+        const node = ast.body[i];
+        if(node.type == "ImportDeclaration"){
+            // most simple case, no specifiers
+            if(node.specifiers.length == 0){
+                const start = node.start;
+                const end = node.end;
+                if(node.source.type != "Literal"){
+                    throw Error("import source is not a literal");
+                }
+                const module_name = node.source.value;
+                const new_code_of_node = `importScripts("${module_name}");`;
+                modified_user_code = modified_user_code.substring(0, start) + new_code_of_node + modified_user_code.substring(end);
+            }
+        }
+    }
+    return modified_user_code;
+}
 
 
 Module["_make_async_from_code"] = function (code) {
@@ -143,25 +163,9 @@ Module["_make_async_from_code"] = function (code) {
         ast
     );
 
+    // handle import statements
+    modified_user_code = Module["_rewrite_import_statements"](modified_user_code, ast);
 
-    // handle import statements (in reverse order)
-    // so that the line numbers stay correct
-    for(let i=ast.body.length-1; i>=0; i--){
-        const node = ast.body[i];
-        if(node.type == "ImportDeclaration"){
-            // most simple case, no specifiers
-            if(node.specifiers.length == 0){
-                const start = node.start;
-                const end = node.end;
-                if(node.source.type != "Literal"){
-                    throw "import source is not a literal";
-                }
-                const module_name = node.source.value;
-                const new_code_of_node = `importScripts("${module_name}");`;
-                modified_user_code = modified_user_code.substring(0, start) + new_code_of_node + modified_user_code.substring(end);
-            }
-        }
-    }
 
     const combined_code = `
 ${modified_user_code}
@@ -195,7 +199,7 @@ Module["_ast_parse"] = function (code) {
 
 Module["_configure"] = function () {
 
-    console.log("import meriyah");
+
     const url="https://cdn.jsdelivr.net/npm/meriyah@4.3.9/dist/meriyah.umd.min.js"
     importScripts(url);
 
@@ -246,8 +250,6 @@ Module["_configure"] = function () {
 }
 
 Module["_call_user_code"] =  async function (code) {
-
-
 
     try{
         let as
