@@ -1,21 +1,8 @@
-Module["_make_async_from_code"] = function (code) {
 
-    if(code.length == 0){
-        return {
-            async_function: async function(){},
-            with_return: false
-        };
-    }
-
-    let code_to_use = code;
-    try{
-        var code_ast = Module["_ast_parse"](code);
-    }
-    catch(err){
-        throw err;
-    }
+// add toplevel variables to global scope
+Module["_add_to_global_scope"] = function (ast) {
     let extra_code = [];
-    for(const node of code_ast.body){
+    for(const node of ast.body){
         if(node.type == "FunctionDeclaration")
         {
             const  name = node.id.name;
@@ -23,17 +10,68 @@ Module["_make_async_from_code"] = function (code) {
         }
         else if(node.type == "VariableDeclaration")
         {
-            const  name = node.declarations[0].id.name;
-            extra_code.push(`globalThis[\"${name}\"] = ${name};`);
+            const declarations = node.declarations;
+            if(declarations.length != 1){
+                throw "VariableDeclaration with more than 1 declaration not yet implemented";
+            }
+            const declaration = declarations[0];
+            const declaration_type = declaration.id.type;
+
+            if(declaration_type == "ObjectPattern"){
+                // get all the keys
+                const keys = declaration.id.properties.map((prop)=>prop.key.name);
+                Module["clog"]("ObjectPatternKeys",keys);
+                for(const key of keys){
+                    extra_code.push(`globalThis[\"${key}\"] = ${key};`);
+                }
+
+            }
+            else if(declaration_type == "ArrayPattern"){
+                // get all the keys
+                const keys = declaration.id.elements.map((element)=>element.name);
+                Module["clog"]("ArrayPatternKeys",keys);
+                for(const key of keys){
+                    extra_code.push(`globalThis[\"${key}\"] = ${key};`);
+                }
+            }
+            else if(declaration_type == "Identifier"){
+
+                const  name = node.declarations[0].id.name;
+                extra_code.push(`globalThis[\"${name}\"] = ${name};`);
+            }
+            else{
+                throw `unknown VariableDeclaration type ${node.id.type}`;
+            }
         }
     }
+    return extra_code.join('\n');
+
+}
+
+Module["clog"] = function (...msg) {
+
+    let msg_str = "";
+    for (let i = 0; i < msg.length; i++) {
+        msg_str += `${msg[i]}`;
+        if (i < msg.length - 1) {
+            msg_str += " ";
+        }
+    }
+    Module["_stdout"](`${msg_str}\n`);
+}
+
+
+Module["_handle_last_statement"] = function (
+    code_user,
+    ast
+) {
+
 
     // is the very last character a semicolon?
-    const last_char_is_semicolon =  code_to_use[code_to_use.length-1] == ";";
-
+    const last_char_is_semicolon =  code_user[code_user.length-1] == ";";
 
     // get the last node
-    const last_node = code_ast.body[code_ast.body.length-1];
+    const last_node = ast.body[ast.body.length-1];
 
     // if the last node is an expression statement
     // then we need to add a return statement
@@ -44,26 +82,58 @@ Module["_make_async_from_code"] = function (code) {
         const last_node_start = last_node.start;
         const last_node_end = last_node.end;
 
-        const code_of_last_node = code_to_use.substring(last_node_start, last_node_end);
+        //  remove the last node from the code
+        const modified_user_code = code_user.substring(0, last_node_start) + code_user.substring(last_node_end);
+        const code_of_last_node = code_user.substring(last_node_start, last_node_end);
+        const extra_return_code = `return  ${code_of_last_node};`;
 
-        const new_code_of_last_node = `return  ${code_of_last_node};`;
-
-        code_to_use = code_to_use.substring(0, last_node_start) + ";" +
-            extra_code.join('\n') +
-            new_code_of_last_node + code_to_use.substring(last_node_end);
-        with_return = true;
+        return {
+            with_return: true,
+            modified_user_code: modified_user_code,
+            extra_return_code: extra_return_code
+        }
     }
     else
     {
-        const ec = extra_code.join('\n');
-        code_to_use = code_to_use.concat('\n', ec);
+        return {
+            with_return: false,
+            modified_user_code: code_user,
+            extra_return_code: ""
+        }
     }
+
+}
+
+
+
+
+Module["_make_async_from_code"] = function (code) {
+
+    if(code.length == 0){
+        return {
+            async_function: async function(){},
+            with_return: false
+        };
+    }
+
+    const ast = Module["_ast_parse"](code);
+
+    console.dir(ast.body, {depth: null});
+
+    // code to add top level variables to global scope
+    const code_add_to_global_scope = Module["_add_to_global_scope"](ast);
+
+    // handle last statement / add return if needed
+    let {with_return, modified_user_code, extra_return_code} = Module["_handle_last_statement"](
+        code,
+        ast
+    );
 
 
     // handle import statements (in reverse order)
     // so that the line numbers stay correct
-    for(let i=code_ast.body.length-1; i>=0; i--){
-        const node = code_ast.body[i];
+    for(let i=ast.body.length-1; i>=0; i--){
+        const node = ast.body[i];
         if(node.type == "ImportDeclaration"){
             // most simple case, no specifiers
             if(node.specifiers.length == 0){
@@ -74,13 +144,23 @@ Module["_make_async_from_code"] = function (code) {
                 }
                 const module_name = node.source.value;
                 const new_code_of_node = `importScripts("${module_name}");`;
-                code_to_use = code_to_use.substring(0, start) + new_code_of_node + code_to_use.substring(end);
+                modified_user_code = modified_user_code.substring(0, start) + new_code_of_node + modified_user_code.substring(end);
             }
         }
     }
 
+    const combined_code = `
+${modified_user_code}
+${code_add_to_global_scope}
+${extra_return_code}
+    `;
+
+    Module["clog"]("combined_code", combined_code);
+
     let async_function = Function(`const afunc = async function(){
-        ${code_to_use}
+
+        ${combined_code}
+
     };
     return afunc;
     `)();

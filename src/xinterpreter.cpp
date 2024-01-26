@@ -50,19 +50,17 @@ namespace xeus_javascript
 
         auto data = nl::json::parse(json_str);
 
-
         // publish stream
         interpreter.display_data(
             data["data"],
             data["metadata"],
             data["transient"]
         );
-         std::cout<<"display_data_done"<<std::endl;
     }
 
     interpreter::interpreter()
     {
-        std::cout<<"94th iteration of this file kernel (due to the service worker caching I need to print this to keep sanity)"<<std::endl;
+        std::cout<<"112th iteration of this file kernel (due to the service worker caching I need to print this to keep sanity)"<<std::endl;
         xeus::register_interpreter(this);
     }
 
