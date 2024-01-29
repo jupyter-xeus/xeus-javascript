@@ -86,18 +86,6 @@ function add_to_global_scope(ast) {
 
 }
 
-function clog (...msg) {
-
-    let msg_str = "";
-    for (let i = 0; i < msg.length; i++) {
-        msg_str += `${msg[i]}`;
-        if (i < msg.length - 1) {
-            msg_str += " ";
-        }
-    }
-    Module["_stdout"](`${msg_str}\n`);
-}
-
 
 function handle_last_statement(
     code_user,
@@ -540,12 +528,7 @@ function _complete_request(code, curser_pos){
 
 }
 
-Module._configure = _configure;
-Module._call_user_code = _call_user_code;
-Module._complete_request = _complete_request;
-Module.clog = clog;
-
-Module.ijs = {
+let ijs = {
     magic_imports: magic_imports,
     display : {
         display: function (data, metadata={}, transient={}) {
@@ -646,6 +629,12 @@ Module.ijs = {
         }
     },
 }
+if(in_emscripten_context){
 
+    Module._configure = _configure;
+    Module._call_user_code = _call_user_code;
+    Module._complete_request = _complete_request;
 
-Module["FS"] = FS;
+    Module.FS = FS;
+    Module.ijs = ijs;
+}
