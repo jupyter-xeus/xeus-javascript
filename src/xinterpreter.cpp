@@ -61,7 +61,7 @@ namespace xeus_javascript
     interpreter::interpreter()
     {
         std::cout<<"142th iteration of this file kernel (due to the service worker caching I need to print this to keep sanity)"<<std::endl;
-        xeus::register_interpreter(this);
+ 
     }
 
     nl::json interpreter::execute_request_impl(int execution_counter, // Typically the cell number
