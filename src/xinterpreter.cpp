@@ -58,27 +58,10 @@ namespace xeus_javascript
         );
     }
 
-    void update_display_data(const std::string& json_str)
-    {
-        // get interpreter
-        auto & interpreter = xeus::get_interpreter();
-
-        auto data = nl::json::parse(json_str);
-
-        // publish stream
-        interpreter.update_display_data(
-            data["data"],
-            data["metadata"],
-            data["transient"]
-        );
-    }
-
-
-
     interpreter::interpreter()
     {
-        std::cout<<"142th iteration of this file kernel (due to the service worker caching I need to print this to keep sanity)"<<std::endl;
- 
+        std::cout<<"130th iteration of this file kernel (due to the service worker caching I need to print this to keep sanity)"<<std::endl;
+        xeus::register_interpreter(this);
     }
 
     nl::json interpreter::execute_request_impl(int execution_counter, // Typically the cell number
