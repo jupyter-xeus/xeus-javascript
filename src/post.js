@@ -545,6 +545,20 @@ let ijs = {
                 Module["_publish_stderr_stream"](`display error: ${err}\n`);
             }
         },
+        update_display_data: function (data, metadata={}, transient={}) {
+            try{
+                // json stringify
+                str_obj = JSON.stringify({
+                    data: data,
+                    metadata: metadata,
+                    transient: transient
+                });
+                Module["_update_display_data"](str_obj);
+            }
+            catch(err){
+                Module["_publish_stderr_stream"](`display error: ${err}\n`);
+            }
+        },
         mime_type: function (mime_type, data) {
             this.display({ mime_type: data });
         },
