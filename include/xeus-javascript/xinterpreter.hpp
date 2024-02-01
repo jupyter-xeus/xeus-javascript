@@ -32,6 +32,7 @@ namespace xeus_javascript
     void publish_stdout_stream(const std::string& message);
     void publish_stderr_stream(const std::string& message);
     void display_data(const std::string& json_str);
+    void update_display_data(const std::string& json_str);
 
 
     class XEUS_JAVASCRIPT_API interpreter : public xeus::xinterpreter
