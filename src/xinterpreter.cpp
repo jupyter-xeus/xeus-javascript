@@ -45,6 +45,7 @@ namespace xeus_javascript
 
     void display_data(const std::string& json_str)
     {
+        std::cout<<"display_data called with "<<json_str<<std::endl;
         // get interpreter
         auto & interpreter = xeus::get_interpreter();
 
@@ -73,12 +74,33 @@ namespace xeus_javascript
         );
     }
 
+    void publish_execution_error(const std::string jstring)
+    {
+        auto & interpreter = xeus::get_interpreter();
+        auto data = nl::json::parse(jstring);
+        interpreter.publish_execution_error(
+            data["ename"],
+            data["evalue"],
+            data["traceback"]
+        );
+    }
+    void publish_execution_result(const std::string jstring)
+    {
+        auto & interpreter = xeus::get_interpreter();
+        auto data = nl::json::parse(jstring);
+        interpreter.publish_execution_result(
+            data["execution_count"],
+            data["data"],
+            data["metadata"]
+        );
+    }
+
 
 
     interpreter::interpreter()
     {
-        std::cout<<"142th iteration of this file kernel (due to the service worker caching I need to print this to keep sanity)"<<std::endl;
- 
+        std::cout<<"147th iteration of this file kernel (due to the service worker caching I need to print this to keep sanity)"<<std::endl;
+        xeus::register_interpreter(this);
     }
 
     nl::json interpreter::execute_request_impl(int execution_counter, // Typically the cell number
@@ -93,12 +115,16 @@ namespace xeus_javascript
 
 
         auto result_promise = emscripten::val::module_property("_call_user_code")(code);
-        auto result = result_promise.await();
-        if(result["has_error"].as<bool>()) {
+        auto result= result_promise.await();
+        const auto result_as_string = result.as<std::string>();
+        nl::json result_json = nl::json::parse(result_as_string);
+        const bool has_error = result_json["has_error"].get<bool>();
 
-            const auto error_type = result["error_type"].as<std::string>();
-            const auto error_message = result["error_message"].as<std::string>();
-            const auto error_stack = result["error_stack"].as<std::string>();
+        if(has_error) {
+
+            const auto error_type = result_json["error_type"].get<std::string>();
+            const auto error_message = result_json["error_message"].get<std::string>();
+            const auto error_stack = result_json["error_stack"].get<std::string>();
 
             kernel_res["status"] = "error";
             kernel_res["ename"] = error_type;
@@ -110,9 +136,10 @@ namespace xeus_javascript
             return kernel_res;
         }
 
-        if (!silent )
+        if (!silent)
         {
-            nl::json pub_data;
+            const bool with_result = result_json["with_result"].get<bool>();
+            nl::json pub_data = result_json["pub_data"];
             publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
         }
 

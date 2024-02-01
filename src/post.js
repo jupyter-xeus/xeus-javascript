@@ -139,9 +139,9 @@ function transform_import_source (source) {
 
         const add_ems = !no_ems_ends.some((end)=>source.endsWith(end));
         let ems_extra_end = add_ems ? source.endsWith("/") ? "+esm" : "/+esm" : "";
-        // if the urls starts with http or https we dont do anything
+        // if the source starts with http or https we dont do anything
         if(no_magic_starts.some((start)=>source.startsWith(start))){
-            return url;
+            return source;
         }
         else{
             if(["npm/","gh/"].some((start)=>source.startsWith(start)) || !magic_imports.enable_auto_npm){
@@ -249,7 +249,7 @@ function rewrite_import_statements(code, ast)
 }
 
 
-function make_async_from_code (code) {
+function make_async_from_code(code) {
 
     if(code.length == 0){
         return {
@@ -360,14 +360,19 @@ async function _call_user_code(code) {
         const ret = make_async_from_code(code);
         const async_function = ret.async_function;
         let result = await async_function();
+
+        let data = {};
+
         if(ret.with_return){
-            // console.log(result);
-            Module["ijs"]["display"]["best_guess"](result);
+            data = Module["ijs"]["get_mime_bundle"](result);
         }
 
-        return {
-            has_error: false
-        }
+        return JSON.stringify( {
+            has_error: false,
+            with_result: ret.with_return,
+            pub_data: data,
+            metadata: {},
+        });
     }
     catch(err){
 
@@ -395,12 +400,12 @@ async function _call_user_code(code) {
             }
         }
 
-        return{
+        return JSON.stringify({
             error_type: `${err.name || "UnkwownError"}`,
             error_message: `${err.message || ""}`,
             error_stack: `${err.stack || ""}`,
             has_error: true
-        }
+        });
     }
 
 }
@@ -582,6 +587,7 @@ let ijs = {
         latex: function (latex) {
             this.display({ "text/latex": latex });
         },
+
         best_guess: function (data) {
             try{
                 if(data instanceof String){
@@ -641,7 +647,29 @@ let ijs = {
                 Module["_publish_stderr_stream"](`display error: ${err}\n`);
             }
         }
+
+
     },
+    get_mime_bundle: function (to_display) {
+        if(to_display instanceof String){
+            return { "text/plain": `${to_display}` };
+        }
+        else if(to_display instanceof Number){
+            return { "text/plain": `${to_display}` };
+        }
+        else if(to_display instanceof Boolean){
+            return { "text/plain": `${to_display}` };
+        }
+        else if(to_display instanceof Array){
+            return { "application/json": to_display };
+        }
+        else if(to_display instanceof Object){
+            return { "application/json": to_display };
+        }
+        else{
+            return { "text/plain": to_display };
+        }
+    }
 }
 if(in_emscripten_context){
 
