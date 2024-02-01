@@ -21,8 +21,6 @@ void _stdout(const std::string& msg)
     std::cout << msg << std::endl;
 }
 
-namespace em = emscripten;
-
 EMSCRIPTEN_BINDINGS(my_module) {
     xeus::export_core();
     using interpreter_type = xeus_javascript::interpreter;
@@ -30,18 +28,16 @@ EMSCRIPTEN_BINDINGS(my_module) {
 
 
 
-    em::function("_publish_stdout_stream",  &xeus_javascript::publish_stdout_stream);
-    em::function("_publish_stderr_stream",  &xeus_javascript::publish_stderr_stream);
-    em::function("_display_data",           &xeus_javascript::display_data);
-    em::function("_update_display_data",    &xeus_javascript::update_display_data);
-
+    emscripten::function("_publish_stdout_stream", &xeus_javascript::publish_stdout_stream);
+    emscripten::function("_publish_stderr_stream", &xeus_javascript::publish_stderr_stream);
+    emscripten::function("_display_data", &xeus_javascript::display_data);
 
     // we overwrite the console.log function, so that we can redirect the output
     // to the kernel. But sometime we need to call the original console.log without
     // redirection.
     // Since all std::cout calls are redirected to console.log, we just expose
     // some api to stdout
-    em::function("_stdout", &_stdout);
+    emscripten::function("_stdout", &_stdout);
 
 
 }
