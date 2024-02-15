@@ -1,5 +1,5 @@
 {
-  "display_name": "javascript ES6 (xjavascript)",
+  "display_name": "JavaScript (xjavascript)",
   "argv": [
       "@XEUS_JAVASCRIPT_KERNELSPEC_PATH@xjavascript",
       "-f",
