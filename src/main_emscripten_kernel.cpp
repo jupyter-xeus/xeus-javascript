@@ -35,7 +35,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
     xeus_javascript::export_xinterpreter();
     xeus_javascript::export_xcomm();
 
-
     // we overwrite the console.log function, so that we can redirect the output
     // to the kernel. But sometime we need to call the original console.log without
     // redirection.
