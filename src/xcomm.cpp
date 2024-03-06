@@ -16,7 +16,6 @@
 namespace nl = nlohmann;
 namespace em = emscripten;
 
-
 namespace xeus_javascript
 {
 
@@ -37,11 +36,6 @@ namespace xeus_javascript
     )
         : m_comm(target(target_name), id(kwargs))
     {
-        std::cout<<"open comm with "<<target_name<<std::endl;
-        std::cout<<"data "<<data.dump(4)<<std::endl;
-        std::cout<<"metadata "<<metadata.dump(4)<<std::endl;
-        std::cout<<"kwargs "<<kwargs.dump(4)<<std::endl;
-
         m_comm.open(metadata, data, jslist_to_cpp_buffers(buffers));
     }
 

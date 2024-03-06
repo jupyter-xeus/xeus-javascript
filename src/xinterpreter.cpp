@@ -32,7 +32,7 @@ namespace xeus_javascript
 {
     interpreter::interpreter()
     {
-        std::cout<<"164th iteration of this file kernel (due to the service worker caching I need to print this to keep sanity)"<<std::endl;
+        std::cout<<"build number 169"<<std::endl;
         xeus::register_interpreter(this);
     }
 

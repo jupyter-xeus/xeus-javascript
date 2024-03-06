@@ -25,49 +25,52 @@ function add_to_global_scope(ast) {
         }
         else if(node.type == "VariableDeclaration")
         {
+
             const declarations = node.declarations;
-            if(declarations.length != 1){
-                throw "VariableDeclaration with more than 1 declaration not yet implemented";
-            }
-            const declaration = declarations[0];
-            const declaration_type = declaration.id.type;
 
-            if(declaration_type == "ObjectPattern"){
+            // for all decl in the declarations
+            for(const declaration of declarations){
+
+                //const declaration = declarations[0];
+                const declaration_type = declaration.id.type;
+
+                if(declaration_type == "ObjectPattern"){
 
 
-                // manual loop
-                for(const prop of declaration.id.properties){
-                    const key = prop.key.name;
+                    // manual loop
+                    for(const prop of declaration.id.properties){
+                        const key = prop.key.name;
 
-                    // in cases like const { default: defaultExport } = await import(url);
-                    if(key == "default"){
-                        // get the value
-                        if(!prop.value.type == "Identifier"){
-                            throw Error("default value is not an identifier");
+                        // in cases like const { default: defaultExport } = await import(url);
+                        if(key == "default"){
+                            // get the value
+                            if(!prop.value.type == "Identifier"){
+                                throw new Error("default value is not an identifier");
+                            }
+                            const value = prop.value.name;
+                            extra_code.push(add_to_global_this_code(prop.value.name));
                         }
-                        const value = prop.value.name;
-                        extra_code.push(add_to_global_this_code(prop.value.name));
+                        // cases like const { a,b } = { a: 1, b: 2 , c: 3}
+                        else{
+                            // extra_code.push(`globalThis[\"${key}\"] = ${key};`);
+                            extra_code.push(add_to_global_this_code(key));
+                        }
                     }
-                    // cases like const { a,b } = { a: 1, b: 2 , c: 3}
-                    else{
-                        // extra_code.push(`globalThis[\"${key}\"] = ${key};`);
+
+                }
+                else if(declaration_type == "ArrayPattern"){
+                    // get all the keys
+                    const keys = declaration.id.elements.map((element)=>element.name);
+                    for(const key of keys){
                         extra_code.push(add_to_global_this_code(key));
                     }
                 }
-
-            }
-            else if(declaration_type == "ArrayPattern"){
-                // get all the keys
-                const keys = declaration.id.elements.map((element)=>element.name);
-                for(const key of keys){
-                    extra_code.push(add_to_global_this_code(key));
+                else if(declaration_type == "Identifier"){
+                    extra_code.push(add_to_global_this_code(declaration.id.name));
                 }
-            }
-            else if(declaration_type == "Identifier"){
-                extra_code.push(add_to_global_this_code(declaration.id.name));
-            }
-            else{
-                throw `unknown VariableDeclaration type ${node.id.type}`;
+                else{
+                    throw new Error(`unknown VariableDeclaration type ${node.id.type}`);
+                }
             }
         }
     }
@@ -318,7 +321,6 @@ function _configure() {
     }
     // alias
     globalThis.pp = globalThis.pprint;
-
 
     console.log = function (... args) {
         let msg = ""
