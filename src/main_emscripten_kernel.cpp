@@ -11,9 +11,11 @@
 
 
 #include <emscripten/bind.h>
-
+#include "xeus-javascript/convert.hpp"
 #include "xeus-javascript/xinterpreter.hpp"
 #include "xeus/xembind.hpp"
+
+#include "xcomm.hpp"
 
 
 void _stdout(const std::string& msg)
@@ -25,16 +27,13 @@ namespace em = emscripten;
 
 EMSCRIPTEN_BINDINGS(my_module) {
     xeus::export_core();
+
     using interpreter_type = xeus_javascript::interpreter;
     xeus::export_kernel<interpreter_type>("xkernel");
 
 
-
-    em::function("_publish_stdout_stream",  &xeus_javascript::publish_stdout_stream);
-    em::function("_publish_stderr_stream",  &xeus_javascript::publish_stderr_stream);
-    em::function("_display_data",           &xeus_javascript::display_data);
-    em::function("_update_display_data",    &xeus_javascript::update_display_data);
-
+    xeus_javascript::export_xinterpreter();
+    xeus_javascript::export_xcomm();
 
     // we overwrite the console.log function, so that we can redirect the output
     // to the kernel. But sometime we need to call the original console.log without

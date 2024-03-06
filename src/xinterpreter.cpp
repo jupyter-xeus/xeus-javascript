@@ -20,86 +20,19 @@
 // embind
 #include <emscripten/bind.h>
 #include <emscripten/emscripten.h>
-
+#include <xeus-javascript/convert.hpp>
 #include <sstream>
 
+#include <xeus-javascript/convert.hpp>
+
 namespace nl = nlohmann;
+namespace em = emscripten;
+
 namespace xeus_javascript
 {
-
-    void publish_stdout_stream(const std::string& message)
-    {
-        // get interpreter
-        auto & interpreter = xeus::get_interpreter();
-        // publish stream
-        interpreter.publish_stream("stdout", message);
-    }
-
-    void publish_stderr_stream(const std::string& message)
-    {
-        // get interpreter
-        auto & interpreter = xeus::get_interpreter();
-        // publish stream
-        interpreter.publish_stream("stderr", message);
-    }
-
-    void display_data(const std::string& json_str)
-    {
-        std::cout<<"display_data called with "<<json_str<<std::endl;
-        // get interpreter
-        auto & interpreter = xeus::get_interpreter();
-
-        auto data = nl::json::parse(json_str);
-
-        // publish stream
-        interpreter.display_data(
-            data["data"],
-            data["metadata"],
-            data["transient"]
-        );
-    }
-
-    void update_display_data(const std::string& json_str)
-    {
-        // get interpreter
-        auto & interpreter = xeus::get_interpreter();
-
-        auto data = nl::json::parse(json_str);
-
-        // publish stream
-        interpreter.update_display_data(
-            data["data"],
-            data["metadata"],
-            data["transient"]
-        );
-    }
-
-    void publish_execution_error(const std::string jstring)
-    {
-        auto & interpreter = xeus::get_interpreter();
-        auto data = nl::json::parse(jstring);
-        interpreter.publish_execution_error(
-            data["ename"],
-            data["evalue"],
-            data["traceback"]
-        );
-    }
-    void publish_execution_result(const std::string jstring)
-    {
-        auto & interpreter = xeus::get_interpreter();
-        auto data = nl::json::parse(jstring);
-        interpreter.publish_execution_result(
-            data["execution_count"],
-            data["data"],
-            data["metadata"]
-        );
-    }
-
-
-
     interpreter::interpreter()
     {
-        std::cout<<"147th iteration of this file kernel (due to the service worker caching I need to print this to keep sanity)"<<std::endl;
+        std::cout<<"build number 169"<<std::endl;
         xeus::register_interpreter(this);
     }
 
@@ -113,11 +46,8 @@ namespace xeus_javascript
         nl::json kernel_res;
 
 
-
         auto result_promise = emscripten::val::module_property("_call_user_code")(code);
-        auto result= result_promise.await();
-        const auto result_as_string = result.as<std::string>();
-        nl::json result_json = nl::json::parse(result_as_string);
+        const nl::json result_json = result_promise.await().as<nl::json>();
         const bool has_error = result_json["has_error"].get<bool>();
 
         if(has_error) {
@@ -153,7 +83,7 @@ namespace xeus_javascript
         emscripten::val::module_property("_configure")();
     }
 
-    nl::json interpreter::is_complete_request_impl(const std::string& code)
+    nl::json interpreter::is_complete_request_impl(const std::string& /*cod*/)
     {
         // Insert code here to validate the ``code``
         // and use `create_is_complete_reply` with the corresponding status
@@ -164,23 +94,11 @@ namespace xeus_javascript
     nl::json interpreter::complete_request_impl(const std::string&  code,
                                                      int cursor_pos)
     {
-
-        auto result_json_str_js = emscripten::val::module_property("_complete_request")(code, cursor_pos);
-        auto result_json_str = result_json_str_js.as<std::string>();
-
-        if(result_json_str.empty()) {
-            return xeus::create_complete_reply(
-                nl::json::array(),  /*matches*/
-                cursor_pos,         /*cursor_start*/
-                cursor_pos          /*cursor_end*/
-            );
-        }
-
-        auto result_json = nl::json::parse(result_json_str);
+        const nl::json result_json = emscripten::val::module_property("_complete_request")(code, cursor_pos).as<nl::json>();
         auto matches = result_json["matches"];
         auto cursor_start = result_json["cursor_start"];
         auto cursor_end = result_json["cursor_end"];
-        auto status = result_json["status"];
+    auto status = result_json["status"];
 
         return xeus::create_complete_reply(
             matches,
@@ -240,4 +158,28 @@ namespace xeus_javascript
         );
     }
 
+    void export_xinterpreter()
+    {
+
+        em::class_<xeus::xinterpreter>("xinterpreter")
+            .function("publish_stream", &interpreter::publish_stream)
+            .function("display_data", &interpreter::display_data)
+            .function("update_display_data", &interpreter::update_display_data)
+            .function("publish_execution_error", &interpreter::publish_execution_error)
+            .function("publish_execution_result", &interpreter::publish_execution_result)
+        ;
+
+        em::class_<interpreter, em::base<xeus::xinterpreter>>("Sample")
+        ;
+
+        // get the interpreter
+        em::function("_get_interpreter", em::select_overload<interpreter*()>(
+            []() -> interpreter* {
+                auto i =  static_cast<interpreter*>(&xeus::get_interpreter());
+                std::cout<<"get_interpreter called and got "<<i->name()<<std::endl;
+                return i;
+            }
+        ), em::allow_raw_pointers());
+
+    }
 }
