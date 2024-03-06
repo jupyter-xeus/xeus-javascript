@@ -32,13 +32,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
     xeus::export_kernel<interpreter_type>("xkernel");
 
 
-
-    // em::function("_publish_stdout_stream",  &xeus_javascript::publish_stdout_stream);
-    // em::function("_publish_stderr_stream",  &xeus_javascript::publish_stderr_stream);
-    // em::function("_display_data",           &xeus_javascript::display_data);
-    // em::function("_update_display_data",    &xeus_javascript::update_display_data);
-
-
     xeus_javascript::export_xinterpreter();
     xeus_javascript::export_xcomm();
 
