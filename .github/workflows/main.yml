@@ -29,8 +29,8 @@ jobs:
       - name: Install micromamba
         uses: mamba-org/setup-micromamba@v1
         with:
-          environment-file: environment-wasm-build.yml
-          environment-name: xeus-javascript-wasm-build
+          environment-file: environment-dev.yml
+          environment-name: pyjs-wasm
 
       ################################################################
       #  emsdk itself

@@ -69,12 +69,10 @@ endif()
 set(xtl_REQUIRED_VERSION 0.7.0)
 set(xeus_REQUIRED_VERSION 3.0.5)
 
-if (NOT TARGET xtl)
-    find_package(xtl ${xtl_REQUIRED_VERSION} REQUIRED)
-endif ()
-if (NOT TARGET xeus AND NOT TARGET xeus-static)
-    find_package(xeus ${xeus_REQUIRED_VERSION} REQUIRED)
-endif ()
+find_package(xeus-lite REQUIRED)
+find_package(xtl ${xtl_REQUIRED_VERSION} REQUIRED)
+find_package(xeus ${xeus_REQUIRED_VERSION} REQUIRED)
+
 
 # Flags
 # =====
@@ -115,6 +113,7 @@ set(XEUS_JAVASCRIPT_HEADERS
 
 set(XEUS_JAVASCRIPT_SRC
     src/xinterpreter.cpp
+    src/xcomm.cpp
 )
 
 set(XEUS_JAVASCRIPT_MAIN_SRC
@@ -230,6 +229,8 @@ macro(xeus_javascript_create_target target_name linkage output_name)
         target_link_libraries(${target_name} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
     endif()
 
+    target_link_libraries(${target_name} PUBLIC xeus-lite)
+
 endmacro()
 
 # xeus-javascript
@@ -268,25 +269,23 @@ if (XEUS_JAVASCRIPT_BUILD_EXECUTABLE)
     target_link_libraries(xjavascript PRIVATE xeus-zmq)
 endif()
 
-if(EMSCRIPTEN)
-    include(WasmBuildOptions)
-    find_package(xeus-lite REQUIRED)
-    add_executable(xjavascript src/main_emscripten_kernel.cpp )
-    target_link_libraries(xjavascript PRIVATE xeus-lite)
-    target_compile_options(xjavascript PRIVATE -fPIC)
-    XEUS_JAVASCRIPT_set_kernel_options(xjavascript)
-    xeus_wasm_compile_options(xjavascript)
-    xeus_wasm_link_options(xjavascript "web,worker")
 
-    #
-    target_link_options(xjavascript
-        PUBLIC "SHELL: -s NO_EXIT_RUNTIME=1"
-        PUBLIC "SHELL: -s ASYNCIFY"
-        PUBLIC "SHELL: -s FORCE_FILESYSTEM=1"
-        PUBLIC "SHELL: --pre-js ${CMAKE_CURRENT_SOURCE_DIR}/src/pre.js"
-        PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/src/post.js"
-    )
-endif()
+include(WasmBuildOptions)
+
+add_executable(xjavascript src/main_emscripten_kernel.cpp )
+target_compile_options(xjavascript PRIVATE -fPIC)
+XEUS_JAVASCRIPT_set_kernel_options(xjavascript)
+xeus_wasm_compile_options(xjavascript)
+xeus_wasm_link_options(xjavascript "web,worker")
+
+#
+target_link_options(xjavascript
+    PUBLIC "SHELL: -s NO_EXIT_RUNTIME=1"
+    PUBLIC "SHELL: -s ASYNCIFY"
+    PUBLIC "SHELL: -s FORCE_FILESYSTEM=1"
+    PUBLIC "SHELL: --pre-js ${CMAKE_CURRENT_SOURCE_DIR}/src/pre.js"
+    PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/src/post.js"
+)
 
 
 # Installation

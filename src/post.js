@@ -1,14 +1,3 @@
-// figure out if we are inside the emscripten build
-// or if this file is used in a pure javascript context
-
-let in_emscripten_context = false;
-if(typeof globalThis['Module'] !== "undefined"){
-    if (typeof globalThis['Module'].createModule === "undefined") {
-        in_emscripten_context = true;
-    }
-}
-
-
 
 let magic_imports = {
     enabled: true,
@@ -304,6 +293,9 @@ ${extra_return_code}
 function _configure() {
 
 
+
+
+
     const url="https://cdn.jsdelivr.net/npm/meriyah@4.3.9/dist/meriyah.umd.min.js"
     importScripts(url);
 
@@ -322,7 +314,7 @@ function _configure() {
                 msg += " ";
             }
         }
-        Module["_publish_stdout_stream"](`${msg}\n`);
+        Module.interpreter.publish_stream("stdout", `${msg}\n`);
     }
     // alias
     globalThis.pp = globalThis.pprint;
@@ -336,7 +328,7 @@ function _configure() {
                 msg += " ";
             }
         }
-        Module["_publish_stdout_stream"](`${msg}\n`);
+        Module.interpreter.publish_stream("stdout", `${msg}\n`);
     }
     console.error = function (... args) {
         let msg = ""
@@ -346,11 +338,20 @@ function _configure() {
                 msg += " ";
             }
         }
-        Module["_publish_stderr_stream"](`${msg}\n`);
+        Module.interpreter.publish_stream("stderr", `${msg}\n`);
     }
 
     // add ijs to global scope
     globalThis["ijs"] = Module["ijs"];
+
+    Module.interpreter = Module._get_interpreter();
+
+    Module.interpreter.publish_stream("stdout", "Configured\n");
+}
+
+
+Module.get_interpreter = function () {
+    return Module.interpreter;
 }
 
 
@@ -367,12 +368,12 @@ async function _call_user_code(code) {
             data = Module["ijs"]["get_mime_bundle"](result);
         }
 
-        return JSON.stringify( {
+        return {
             has_error: false,
             with_result: ret.with_return,
             pub_data: data,
             metadata: {},
-        });
+        };
     }
     catch(err){
 
@@ -390,8 +391,6 @@ async function _call_user_code(code) {
                 msg = await msg;
             }
 
-
-            console.log("msg", msg);
             return{
                 error_type: "C++ Exception",
                 error_message: `${msg}`,
@@ -400,12 +399,26 @@ async function _call_user_code(code) {
             }
         }
 
-        return JSON.stringify({
+
+        // remove a bunch of noise from the stack
+        let err_stack_str = `${err.stack || ""}`;
+        let err_stack_lines = err_stack_str.split("\n");
+        let used_lines = [];
+        for(const line of err_stack_lines){
+            if(line.includes("make_async_from_code ")){
+                break;
+            }
+            used_lines.push(line);
+        }
+        err_stack_str = used_lines.join("\n");
+
+
+        return {
             error_type: `${err.name || "UnkwownError"}`,
             error_message: `${err.message || ""}`,
-            error_stack: `${err.stack || ""}`,
+            error_stack: `${err_stack_str}`,
             has_error: true
-        });
+        };
     }
 
 }
@@ -511,25 +524,23 @@ function _complete_request(code, curser_pos){
 
     // only match if cursor is at the end of the code line
     if(curser_pos_in_line != code_line.length){
-        return JSON.stringify({
+        return {
             matches : [],
             cursor_start : curser_pos,
             cursor_end : curser_pos,
-        });
+        };
     }
 
     let line_res = complete_line(code_line);
     let matches = line_res.matches;
     let in_line_cursor_start = line_res.cursor_start;
 
-    let return_obj = {
+    return {
         matches : matches,
         cursor_start : line_begin + in_line_cursor_start,
         cursor_end : curser_pos,
         status: line_res.status || "ok"
     };
-
-    return JSON.stringify(return_obj);
 
 }
 
@@ -537,32 +548,10 @@ let ijs = {
     magic_imports: magic_imports,
     display : {
         display: function (data, metadata={}, transient={}) {
-            try{
-                // json stringify
-                str_obj = JSON.stringify({
-                    data: data,
-                    metadata: metadata,
-                    transient: transient
-                });
-                Module["_display_data"](str_obj);
-            }
-            catch(err){
-                Module["_publish_stderr_stream"](`display error: ${err}\n`);
-            }
+            Module.get_interpreter().display_data(data, metadata, transient);
         },
         update_display_data: function (data, metadata={}, transient={}) {
-            try{
-                // json stringify
-                str_obj = JSON.stringify({
-                    data: data,
-                    metadata: metadata,
-                    transient: transient
-                });
-                Module["_update_display_data"](str_obj);
-            }
-            catch(err){
-                Module["_publish_stderr_stream"](`display error: ${err}\n`);
-            }
+            Module.get_interpreter().update_display_data(data, metadata, transient);
         },
         mime_type: function (mime_type, data) {
             this.display({ mime_type: data });
@@ -644,7 +633,7 @@ let ijs = {
                 }
             }
             catch(err){
-                Module["_publish_stderr_stream"](`display error: ${err}\n`);
+                Module.interpreter.publish_stream("stderr", `display error: ${err}\n`);
             }
         }
 
@@ -671,12 +660,24 @@ let ijs = {
         }
     }
 }
-if(in_emscripten_context){
 
-    Module._configure = _configure;
-    Module._call_user_code = _call_user_code;
-    Module._complete_request = _complete_request;
-
-    Module.FS = FS;
-    Module.ijs = ijs;
+async function async_init( kernel_root_url, pkg_root_url, verbose){
+    Module._com_manager = new Module.CommManager();
 }
+
+
+
+Module.async_init = async_init;
+
+Module._configure = _configure;
+Module._call_user_code = _call_user_code;
+Module._complete_request = _complete_request;
+
+Module.FS = FS;
+Module.ijs = ijs;
+
+
+function get_comm_manager(){
+    return Module._com_manager;
+}
+Module.get_comm_manager = get_comm_manager;

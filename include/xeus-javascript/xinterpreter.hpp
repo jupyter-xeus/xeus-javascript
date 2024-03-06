@@ -45,6 +45,11 @@ namespace xeus_javascript
         interpreter();
         virtual ~interpreter() = default;
 
+        inline std::string name()const
+        {
+            return "xjavascript";
+        }
+
     protected:
 
         void configure_impl() override;
@@ -69,6 +74,9 @@ namespace xeus_javascript
         void shutdown_request_impl() override;
 
     };
+
+    void export_xinterpreter();
+
 }
 
 #ifdef __GNUC__
