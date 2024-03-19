@@ -100,7 +100,9 @@ function handle_last_statement(
         //  remove the last node from the code
         const modified_user_code = code_user.substring(0, last_node_start) + code_user.substring(last_node_end);
         const code_of_last_node = code_user.substring(last_node_start, last_node_end);
+
         const extra_return_code = `return [${code_of_last_node}];`;
+
 
         return {
             with_return: true,
