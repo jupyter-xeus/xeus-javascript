@@ -32,7 +32,7 @@ namespace xeus_javascript
 {
     interpreter::interpreter()
     {
-        std::cout<<"build number 169"<<std::endl;
+        std::cout<<"build number 195"<<std::endl;
         xeus::register_interpreter(this);
     }
 
@@ -176,7 +176,6 @@ namespace xeus_javascript
         em::function("_get_interpreter", em::select_overload<interpreter*()>(
             []() -> interpreter* {
                 auto i =  static_cast<interpreter*>(&xeus::get_interpreter());
-                std::cout<<"get_interpreter called and got "<<i->name()<<std::endl;
                 return i;
             }
         ), em::allow_raw_pointers());

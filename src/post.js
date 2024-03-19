@@ -92,7 +92,6 @@ function handle_last_statement(
     // if the last node is an expression statement
     // then we need to add a return statement
     // so that the expression gets returned
-    let with_return = false;
     if(!last_char_is_semicolon && last_node.type == "ExpressionStatement" && last_node.expression.type != "AssignmentExpression"){
 
         const last_node_start = last_node.start;
@@ -101,7 +100,7 @@ function handle_last_statement(
         //  remove the last node from the code
         const modified_user_code = code_user.substring(0, last_node_start) + code_user.substring(last_node_end);
         const code_of_last_node = code_user.substring(last_node_start, last_node_end);
-        const extra_return_code = `return  ${code_of_last_node};`;
+        const extra_return_code = `return [${code_of_last_node}];`;
 
         return {
             with_return: true,
@@ -272,11 +271,10 @@ function make_async_from_code(code) {
     modified_user_code = res.modified_user_code;
     code_add_to_global_scope += res.code_add_to_global_scope;
 
-
     const combined_code = `
-${modified_user_code}
-${code_add_to_global_scope}
-${extra_return_code}
+    ${modified_user_code}
+    ${code_add_to_global_scope}
+    ${extra_return_code}
     `;
 
     let async_function = Function(`const afunc = async function(){
@@ -359,14 +357,17 @@ Module.get_interpreter = function () {
 
 async function _call_user_code(code) {
 
+
     try{
         const ret = make_async_from_code(code);
         const async_function = ret.async_function;
-        let result = await async_function();
+        let result_promise = async_function();
 
         let data = {};
 
         if(ret.with_return){
+            let result_holder = await result_promise;
+            let result = result_holder[0];
             data = Module["ijs"]["get_mime_bundle"](result);
         }
 
@@ -384,12 +385,10 @@ async function _call_user_code(code) {
         // so we need to get the error message
 
         if(typeof err === "number"){
-            console.log("catched c++ exception", err);
             let msg = Module["get_exception_message"](err);
 
             // if promise
             if(msg instanceof Promise){
-                console.log("awaiting promise");
                 msg = await msg;
             }
 
