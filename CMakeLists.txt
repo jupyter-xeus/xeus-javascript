@@ -258,17 +258,6 @@ if (XEUS_JAVASCRIPT_BUILD_STATIC)
     list(APPEND XEUS_JAVASCRIPT_TARGETS xeus-javascript-static)
 endif ()
 
-# xjavascript
-# =======
-if (XEUS_JAVASCRIPT_BUILD_EXECUTABLE)
-    find_package(xeus-zmq 1.0.2 REQUIRED)
-    add_executable(xjavascript ${XEUS_JAVASCRIPT_MAIN_SRC})
-    target_compile_features(xjavascript PRIVATE cxx_std_17)
-    xeus_javascript_set_common_options(xjavascript)
-    xeus_javascript_set_kernel_options(xjavascript)
-    target_link_libraries(xjavascript PRIVATE xeus-zmq)
-endif()
-
 
 include(WasmBuildOptions)
 

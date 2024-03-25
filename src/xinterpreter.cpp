@@ -36,12 +36,12 @@ namespace xeus_javascript
         xeus::register_interpreter(this);
     }
 
-    nl::json interpreter::execute_request_impl(int execution_counter, // Typically the cell number
-                                                      const  std::string & code, // Code to execute
-                                                      bool silent,
-                                                      bool /*store_history*/,
-                                                      nl::json /*user_expressions*/,
-                                                      bool /*allow_stdin*/)
+    void interpreter::execute_request_impl(xeus::xrequest_context request_context,
+                                               send_reply_callback cb,
+                                               int execution_counter,
+                                               const std::string& code,
+                                               xeus::execute_request_config config,
+                                               nl::json user_expressions)
     {
         nl::json kernel_res;
 
@@ -60,22 +60,23 @@ namespace xeus_javascript
             kernel_res["ename"] = error_type;
             kernel_res["evalue"] = error_message;
             kernel_res["traceback"] = {error_stack};
-            if(!silent){
-                publish_execution_error(error_type, error_message, {error_stack});
+            if(!config.silent){
+                publish_execution_error(request_context, error_type, error_message, {error_stack});
             }
-            return kernel_res;
+            cb(kernel_res);
+            return;
         }
 
-        if (!silent)
+        if (!config.silent)
         {
             const bool with_result = result_json["with_result"].get<bool>();
             nl::json pub_data = result_json["pub_data"];
-            publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
+            publish_execution_result(request_context, execution_counter, std::move(pub_data), nl::json::object());
         }
 
 
 
-        return xeus::create_successful_reply(nl::json::array(), nl::json::object());
+        cb(xeus::create_successful_reply(nl::json::array(), nl::json::object()));
     }
 
     void interpreter::configure_impl()

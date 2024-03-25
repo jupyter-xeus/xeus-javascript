@@ -29,24 +29,38 @@ namespace xeus_javascript
 
     xcomm::xcomm(
         std::string target_name,
-        nl::json data,
-        nl::json metadata,
-        em::val buffers,
         nl::json kwargs
     )
         : m_comm(target(target_name), id(kwargs))
     {
-        m_comm.open(metadata, data, jslist_to_cpp_buffers(buffers));
     }
 
     xcomm::xcomm(xeus::xcomm&& comm)
         : m_comm(std::move(comm))
     {
     }
-
     xcomm::~xcomm()
     {
     }
+    void xcomm::open(
+        nl::json parent_header,
+        const nl::json & data,
+        const nl::json& metadata,
+        const em::val & buffers)
+    {
+        m_comm.open(parent_header, metadata, data, jslist_to_cpp_buffers(buffers));
+    }
+
+    void xcomm::close(nl::json parent_header,  const nl::json & data, const nl::json& metadata, const em::val & buffers)
+    {
+        m_comm.close(parent_header, metadata, data, jslist_to_cpp_buffers(buffers));
+    }
+
+    void xcomm::send( nl::json parent_header, const nl::json & data, const nl::json& metadata, const em::val & buffers)
+    {
+        m_comm.send(parent_header, metadata, data, jslist_to_cpp_buffers(buffers));
+    }
+
 
     std::string xcomm::comm_id() const
     {
@@ -58,15 +72,6 @@ namespace xeus_javascript
         return true;
     }
 
-    void xcomm::close(const nl::json & data, const nl::json& metadata, const em::val & buffers)
-    {
-        m_comm.close(metadata, data, jslist_to_cpp_buffers(buffers));
-    }
-
-    void xcomm::send(const nl::json & data, const nl::json& metadata, const em::val & buffers)
-    {
-        m_comm.send(metadata, data, jslist_to_cpp_buffers(buffers));
-    }
 
     void xcomm::on_msg(const js_callback_type& callback)
     {
@@ -120,9 +125,10 @@ namespace xeus_javascript
 
     void export_xcomm(){
         em::class_<xcomm>("Comm")
-            .constructor<std::string, nl::json, nl::json, em::val, nl::json>()
+            .constructor<std::string,  nl::json>()
             .function("comm_id", &xcomm::comm_id)
             .function("kernel", &xcomm::kernel)
+            .function("open", &xcomm::open)
             .function("close", &xcomm::close)
             .function("send", &xcomm::send)
             .function("on_msg", &xcomm::on_msg)
