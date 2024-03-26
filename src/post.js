@@ -83,41 +83,55 @@ function handle_last_statement(
     code_user,
     ast
 ) {
-    // is the very last character a semicolon?
-    const last_char_is_semicolon =  code_user[code_user.length-1] == ";";
 
     // get the last node
     const last_node = ast.body[ast.body.length-1];
 
+
     // if the last node is an expression statement
     // then we need to add a return statement
     // so that the expression gets returned
-    if(!last_char_is_semicolon && last_node.type == "ExpressionStatement" && last_node.expression.type != "AssignmentExpression"){
+    if(last_node.type == "ExpressionStatement" && last_node.expression.type != "AssignmentExpression"){
 
-        const last_node_start = last_node.start;
-        const last_node_end = last_node.end;
+        const last_node_expr_start = last_node.expression.start;
+        const last_node_expr_end = last_node.expression.end;
 
-        //  remove the last node from the code
-        const modified_user_code = code_user.substring(0, last_node_start) + code_user.substring(last_node_end);
-        const code_of_last_node = code_user.substring(last_node_start, last_node_end);
+        // "rest"
+        const last_node_rest_end = last_node.end
+        // search between last_node_expr_end and last_node_rest_end for a semicolon
+        // if there is a semicolon then we dont need to add a return
 
-        const extra_return_code = `return [${code_of_last_node}];`;
+        let semicolon_found = false;
+        for(let i=last_node_expr_end; i<last_node_rest_end; i++){
+            if(code_user[i] == ";"){
+                semicolon_found = true;
+                break;
+            }
+        }
+
+        if(!semicolon_found){
+            //  remove the last node from the code
+            const modified_user_code = code_user.substring(0, last_node_expr_start) + code_user.substring(last_node_expr_end);
+            const code_of_last_node = code_user.substring(last_node_expr_start, last_node_expr_end);
 
 
-        return {
-            with_return: true,
-            modified_user_code: modified_user_code,
-            extra_return_code: extra_return_code
+            const extra_return_code = `return [${code_of_last_node}];`;
+
+
+            return {
+                with_return: true,
+                modified_user_code: modified_user_code,
+                extra_return_code: extra_return_code
+            }
         }
     }
-    else
-    {
-        return {
-            with_return: false,
-            modified_user_code: code_user,
-            extra_return_code: ""
-        }
+
+    return {
+        with_return: false,
+        modified_user_code: code_user,
+        extra_return_code: ""
     }
+
 
 }
 
@@ -317,7 +331,7 @@ function _configure() {
                 msg += " ";
             }
         }
-        Module.interpreter.publish_stream("stdout", `${msg}\n`);
+        Module.interpreter.publish_stream(Module.get_request_context(), "stdout", `${msg}\n`);
     }
     // alias
     globalThis.pp = globalThis.pprint;
@@ -330,7 +344,7 @@ function _configure() {
                 msg += " ";
             }
         }
-        Module.interpreter.publish_stream("stdout", `${msg}\n`);
+        Module.interpreter.publish_stream(Module.get_request_context(), "stdout", `${msg}\n`);
     }
     console.error = function (... args) {
         let msg = ""
@@ -340,7 +354,7 @@ function _configure() {
                 msg += " ";
             }
         }
-        Module.interpreter.publish_stream("stderr", `${msg}\n`);
+        Module.interpreter.publish_stream(Module.get_request_context(), "stderr", `${msg}\n`);
     }
 
     // add ijs to global scope
@@ -348,21 +362,34 @@ function _configure() {
 
     Module.interpreter = Module._get_interpreter();
 
-    Module.interpreter.publish_stream("stdout", "Configured\n");
+
+    // the execute request context
+    Module._xrequest_context = null;
 }
 
+
+Module.get_request_context = function () {
+    return Module._xrequest_context;
+}
 
 Module.get_interpreter = function () {
     return Module.interpreter;
 }
 
 
-async function _call_user_code(code) {
+async function _call_user_code(context, code) {
 
+    // call _xrequest_context.delete() if it exists
+    if(Module._xrequest_context && Module._xrequest_context.delete){
+        Module._xrequest_context.delete();
+    }
+    Module._xrequest_context = context;
 
     try{
+
         const ret = make_async_from_code(code);
         const async_function = ret.async_function;
+
         let result_promise = async_function();
 
         let data = {};
@@ -441,8 +468,6 @@ function complete_line(code_line){
         }
     }
     let pseudo_expression = code_line.substring(code_begin);
-
-
     // pseudo_expression is "fubar.b" "fubar", "fubar." or "fubar['aaa']"
 
     // find part right of dot / bracket
@@ -469,8 +494,6 @@ function complete_line(code_line){
         curser_start += split_pos+1;
     }
 
-
-
     // find root object
     let root_object = globalThis;
     if(root_object_str != ""){
@@ -478,7 +501,6 @@ function complete_line(code_line){
             root_object = eval(root_object_str);
         }
         catch(err){
-            Module["_publish_stderr_stream"](`${err}\n`);
             return {
                 matches : [],
                 cursor_start : curser_start,
@@ -551,10 +573,10 @@ let ijs = {
     magic_imports: magic_imports,
     display : {
         display: function (data, metadata={}, transient={}) {
-            Module.get_interpreter().display_data(data, metadata, transient);
+            Module.get_interpreter().display_data(Module.get_request_context(), data, metadata, transient);
         },
         update_display_data: function (data, metadata={}, transient={}) {
-            Module.get_interpreter().update_display_data(data, metadata, transient);
+            Module.get_interpreter().update_display_data(Module.get_request_context(), data, metadata, transient);
         },
         mime_type: function (mime_type, data) {
             this.display({ mime_type: data });
@@ -636,7 +658,7 @@ let ijs = {
                 }
             }
             catch(err){
-                Module.interpreter.publish_stream("stderr", `display error: ${err}\n`);
+                Module.interpreter.publish_stream(Module.get_request_context(), "stderr", `display error: ${err}\n`);
             }
         }
 

@@ -32,22 +32,24 @@ namespace xeus_javascript
 {
     interpreter::interpreter()
     {
-        std::cout<<"build number 195"<<std::endl;
+        std::cout<<"build #210"<<std::endl;
         xeus::register_interpreter(this);
     }
 
-    nl::json interpreter::execute_request_impl(int execution_counter, // Typically the cell number
-                                                      const  std::string & code, // Code to execute
-                                                      bool silent,
-                                                      bool /*store_history*/,
-                                                      nl::json /*user_expressions*/,
-                                                      bool /*allow_stdin*/)
+    void interpreter::execute_request_impl(xeus::xrequest_context request_context,
+                                               send_reply_callback cb,
+                                               int execution_counter,
+                                               const std::string& code,
+                                               xeus::execute_request_config config,
+                                               nl::json /*user_expressions*/)
     {
         nl::json kernel_res;
 
-
-        auto result_promise = emscripten::val::module_property("_call_user_code")(code);
+        xeus::xrequest_context request_context_copy = request_context;
+        auto result_promise = emscripten::val::module_property("_call_user_code")(request_context_copy, code);
         const nl::json result_json = result_promise.await().as<nl::json>();
+
+
         const bool has_error = result_json["has_error"].get<bool>();
 
         if(has_error) {
@@ -60,22 +62,22 @@ namespace xeus_javascript
             kernel_res["ename"] = error_type;
             kernel_res["evalue"] = error_message;
             kernel_res["traceback"] = {error_stack};
-            if(!silent){
-                publish_execution_error(error_type, error_message, {error_stack});
+            if(!config.silent){
+                publish_execution_error(request_context, error_type, error_message, {error_stack});
             }
-            return kernel_res;
+            cb(kernel_res);
+            return;
         }
 
-        if (!silent)
+        if (!config.silent)
         {
             const bool with_result = result_json["with_result"].get<bool>();
             nl::json pub_data = result_json["pub_data"];
-            publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
+            publish_execution_result(request_context, execution_counter, std::move(pub_data), nl::json::object());
         }
 
-
-
-        return xeus::create_successful_reply(nl::json::array(), nl::json::object());
+        auto reply = xeus::create_successful_reply(nl::json::array(), nl::json::object());
+        cb(reply);
     }
 
     void interpreter::configure_impl()
@@ -98,7 +100,9 @@ namespace xeus_javascript
         auto matches = result_json["matches"];
         auto cursor_start = result_json["cursor_start"];
         auto cursor_end = result_json["cursor_end"];
-    auto status = result_json["status"];
+        auto status = result_json["status"];
+
+        std::cout<<"found #"<<matches.size()<<std::endl;
 
         return xeus::create_complete_reply(
             matches,
@@ -160,6 +164,9 @@ namespace xeus_javascript
 
     void export_xinterpreter()
     {
+        em::class_<xeus::xrequest_context>("xrequest_context")
+            .function("header", &xeus::xrequest_context::header)
+        ;
 
         em::class_<xeus::xinterpreter>("xinterpreter")
             .function("publish_stream", &interpreter::publish_stream)
@@ -169,8 +176,9 @@ namespace xeus_javascript
             .function("publish_execution_result", &interpreter::publish_execution_result)
         ;
 
-        em::class_<interpreter, em::base<xeus::xinterpreter>>("Sample")
+        em::class_<interpreter, em::base<xeus::xinterpreter>>("Iterpreter")
         ;
+
 
         // get the interpreter
         em::function("_get_interpreter", em::select_overload<interpreter*()>(
