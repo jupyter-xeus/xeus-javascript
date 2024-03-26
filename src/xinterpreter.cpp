@@ -32,7 +32,7 @@ namespace xeus_javascript
 {
     interpreter::interpreter()
     {
-        std::cout<<"build number 195"<<std::endl;
+        std::cout<<"build #210"<<std::endl;
         xeus::register_interpreter(this);
     }
 
@@ -41,13 +41,15 @@ namespace xeus_javascript
                                                int execution_counter,
                                                const std::string& code,
                                                xeus::execute_request_config config,
-                                               nl::json user_expressions)
+                                               nl::json /*user_expressions*/)
     {
         nl::json kernel_res;
 
-
-        auto result_promise = emscripten::val::module_property("_call_user_code")(code);
+        xeus::xrequest_context request_context_copy = request_context;
+        auto result_promise = emscripten::val::module_property("_call_user_code")(request_context_copy, code);
         const nl::json result_json = result_promise.await().as<nl::json>();
+
+
         const bool has_error = result_json["has_error"].get<bool>();
 
         if(has_error) {
@@ -74,9 +76,8 @@ namespace xeus_javascript
             publish_execution_result(request_context, execution_counter, std::move(pub_data), nl::json::object());
         }
 
-
-
-        cb(xeus::create_successful_reply(nl::json::array(), nl::json::object()));
+        auto reply = xeus::create_successful_reply(nl::json::array(), nl::json::object());
+        cb(reply);
     }
 
     void interpreter::configure_impl()
@@ -99,7 +100,9 @@ namespace xeus_javascript
         auto matches = result_json["matches"];
         auto cursor_start = result_json["cursor_start"];
         auto cursor_end = result_json["cursor_end"];
-    auto status = result_json["status"];
+        auto status = result_json["status"];
+
+        std::cout<<"found #"<<matches.size()<<std::endl;
 
         return xeus::create_complete_reply(
             matches,
@@ -161,6 +164,9 @@ namespace xeus_javascript
 
     void export_xinterpreter()
     {
+        em::class_<xeus::xrequest_context>("xrequest_context")
+            .function("header", &xeus::xrequest_context::header)
+        ;
 
         em::class_<xeus::xinterpreter>("xinterpreter")
             .function("publish_stream", &interpreter::publish_stream)
@@ -170,8 +176,9 @@ namespace xeus_javascript
             .function("publish_execution_result", &interpreter::publish_execution_result)
         ;
 
-        em::class_<interpreter, em::base<xeus::xinterpreter>>("Sample")
+        em::class_<interpreter, em::base<xeus::xinterpreter>>("Iterpreter")
         ;
+
 
         // get the interpreter
         em::function("_get_interpreter", em::select_overload<interpreter*()>(
