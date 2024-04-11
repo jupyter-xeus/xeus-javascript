@@ -399,6 +399,9 @@ async function _call_user_code(context, code) {
             let result = result_holder[0];
             data = Module["ijs"]["get_mime_bundle"](result);
         }
+        else{
+            await result_promise;
+        }
 
         return {
             has_error: false,
