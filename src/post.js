@@ -396,6 +396,9 @@ async function _call_user_code(execution_counter, config, reply_callback, code) 
         else{
             await result_promise;
         }
+        else{
+            await result_promise;
+        }
 
         reply_callback.reply_success();
         return;
