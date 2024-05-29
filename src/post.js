@@ -331,7 +331,7 @@ function _configure() {
                 msg += " ";
             }
         }
-        Module.interpreter.publish_stream(Module.get_request_context(), "stdout", `${msg}\n`);
+        Module.interpreter.publish_stream("stdout", `${msg}\n`);
     }
     // alias
     globalThis.pp = globalThis.pprint;
@@ -344,7 +344,7 @@ function _configure() {
                 msg += " ";
             }
         }
-        Module.interpreter.publish_stream(Module.get_request_context(), "stdout", `${msg}\n`);
+        Module.interpreter.publish_stream("stdout", `${msg}\n`);
     }
     console.error = function (... args) {
         let msg = ""
@@ -354,7 +354,7 @@ function _configure() {
                 msg += " ";
             }
         }
-        Module.interpreter.publish_stream(Module.get_request_context(), "stderr", `${msg}\n`);
+        Module.interpreter.publish_stream("stderr", `${msg}\n`);
     }
 
     // add ijs to global scope
@@ -362,11 +362,7 @@ function _configure() {
 
     Module.interpreter = Module._get_interpreter();
 
-
-    // the execute request context
-    Module._xrequest_context = null;
 }
-
 
 Module.get_request_context = function () {
     return Module._xrequest_context;
@@ -377,13 +373,8 @@ Module.get_interpreter = function () {
 }
 
 
-async function _call_user_code(context, code) {
+async function _call_user_code(execution_counter, config, reply_callback, code) {
 
-    // call _xrequest_context.delete() if it exists
-    if(Module._xrequest_context && Module._xrequest_context.delete){
-        Module._xrequest_context.delete();
-    }
-    Module._xrequest_context = context;
 
     try{
 
@@ -398,17 +389,14 @@ async function _call_user_code(context, code) {
             let result_holder = await result_promise;
             let result = result_holder[0];
             data = Module["ijs"]["get_mime_bundle"](result);
+            if(!config.silent){
+                Module.get_interpreter().publish_execution_result(execution_counter, data, {});
+            }
         }
         else{
             await result_promise;
         }
-
-        return {
-            has_error: false,
-            with_result: ret.with_return,
-            pub_data: data,
-            metadata: {},
-        };
+        reply_callback.reply_success();
     }
     catch(err){
 
@@ -423,35 +411,28 @@ async function _call_user_code(context, code) {
             if(msg instanceof Promise){
                 msg = await msg;
             }
-
-            return{
-                error_type: "C++ Exception",
-                error_message: `${msg}`,
-                error_stack: "",
-                has_error: true
-            }
+            Module.get_interpreter().publish_execution_error("C++ Exception", `${msg}`, "");
+            reply_callback.reply_error("C++ Exception", `${msg}`, "");
         }
-
-
-        // remove a bunch of noise from the stack
-        let err_stack_str = `${err.stack || ""}`;
-        let err_stack_lines = err_stack_str.split("\n");
-        let used_lines = [];
-        for(const line of err_stack_lines){
-            if(line.includes("make_async_from_code ")){
-                break;
+        else{
+            // remove a bunch of noise from the stack
+            let err_stack_str = `${err.stack || ""}`;
+            let err_stack_lines = err_stack_str.split("\n");
+            let used_lines = [];
+            for(const line of err_stack_lines){
+                if(line.includes("make_async_from_code ")){
+                    break;
+                }
+                used_lines.push(line);
             }
-            used_lines.push(line);
+            err_stack_str = used_lines.join("\n");
+            Module.get_interpreter().publish_execution_error(`${err.name || "UnkwownError"}`, `${err.message || ""}`, `${err_stack_str}`);
+            reply_callback.reply_error(`${err.name || "UnkwownError"}`, `${err.message || ""}`, `${err_stack_str}`);
         }
-        err_stack_str = used_lines.join("\n");
-
-
-        return {
-            error_type: `${err.name || "UnkwownError"}`,
-            error_message: `${err.message || ""}`,
-            error_stack: `${err_stack_str}`,
-            has_error: true
-        };
+    }
+    finally{
+        config.delete();
+        reply_callback.delete();
     }
 
 }
@@ -576,10 +557,10 @@ let ijs = {
     magic_imports: magic_imports,
     display : {
         display: function (data, metadata={}, transient={}) {
-            Module.get_interpreter().display_data(Module.get_request_context(), data, metadata, transient);
+            Module.get_interpreter().display_data(data, metadata, transient);
         },
         update_display_data: function (data, metadata={}, transient={}) {
-            Module.get_interpreter().update_display_data(Module.get_request_context(), data, metadata, transient);
+            Module.get_interpreter().update_display_data(data, metadata, transient);
         },
         mime_type: function (mime_type, data) {
             this.display({ mime_type: data });
@@ -661,7 +642,7 @@ let ijs = {
                 }
             }
             catch(err){
-                Module.interpreter.publish_stream(Module.get_request_context(), "stderr", `display error: ${err}\n`);
+                Module.interpreter.publish_stream("stderr", `display error: ${err}\n`);
             }
         }
 

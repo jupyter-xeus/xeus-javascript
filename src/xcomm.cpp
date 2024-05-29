@@ -43,22 +43,21 @@ namespace xeus_javascript
     {
     }
     void xcomm::open(
-        nl::json parent_header,
         const nl::json & data,
         const nl::json& metadata,
         const em::val & buffers)
     {
-        m_comm.open(parent_header, metadata, data, jslist_to_cpp_buffers(buffers));
+        m_comm.open(metadata, data, jslist_to_cpp_buffers(buffers));
     }
 
-    void xcomm::close(nl::json parent_header,  const nl::json & data, const nl::json& metadata, const em::val & buffers)
+    void xcomm::close( const nl::json & data, const nl::json& metadata, const em::val & buffers)
     {
-        m_comm.close(parent_header, metadata, data, jslist_to_cpp_buffers(buffers));
+        m_comm.close(metadata, data, jslist_to_cpp_buffers(buffers));
     }
 
-    void xcomm::send( nl::json parent_header, const nl::json & data, const nl::json& metadata, const em::val & buffers)
+    void xcomm::send(const nl::json & data, const nl::json& metadata, const em::val & buffers)
     {
-        m_comm.send(parent_header, metadata, data, jslist_to_cpp_buffers(buffers));
+        m_comm.send(metadata, data, jslist_to_cpp_buffers(buffers));
     }
 
 

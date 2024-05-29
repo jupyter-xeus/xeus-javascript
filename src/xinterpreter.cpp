@@ -30,14 +30,32 @@ namespace em = emscripten;
 
 namespace xeus_javascript
 {
+
+
+    void send_reply_callback_wrapper::call(const nl::json& reply)  const{
+        callback(reply);
+    }
+
+     void send_reply_callback_wrapper::reply_success() const
+    {
+        callback(
+            xeus::create_successful_reply(nl::json::array(), nl::json::object())
+        );
+    }
+    void send_reply_callback_wrapper::reply_error(const std::string& error_type, const std::string& error_message, const std::string & error_stack) const
+    {
+        callback(
+            xeus::create_error_reply(error_type, error_message, {error_stack})
+        );
+    }
+
     interpreter::interpreter()
     {
-        std::cout<<"build #213"<<std::endl;
+        std::cout<<"build #224"<<std::endl;
         xeus::register_interpreter(this);
     }
 
-    void interpreter::execute_request_impl(xeus::xrequest_context request_context,
-                                               send_reply_callback cb,
+    void interpreter::execute_request_impl(send_reply_callback cb,
                                                int execution_counter,
                                                const std::string& code,
                                                xeus::execute_request_config config,
@@ -45,39 +63,9 @@ namespace xeus_javascript
     {
         nl::json kernel_res;
 
-        xeus::xrequest_context request_context_copy = request_context;
-        auto result_promise = emscripten::val::module_property("_call_user_code")(request_context_copy, code);
-        const nl::json result_json = result_promise.await().as<nl::json>();
+        auto cb_wrapper = send_reply_callback_wrapper{cb};
 
-
-        const bool has_error = result_json["has_error"].get<bool>();
-
-        if(has_error) {
-
-            const auto error_type = result_json["error_type"].get<std::string>();
-            const auto error_message = result_json["error_message"].get<std::string>();
-            const auto error_stack = result_json["error_stack"].get<std::string>();
-
-            kernel_res["status"] = "error";
-            kernel_res["ename"] = error_type;
-            kernel_res["evalue"] = error_message;
-            kernel_res["traceback"] = {error_stack};
-            if(!config.silent){
-                publish_execution_error(request_context, error_type, error_message, {error_stack});
-            }
-            cb(kernel_res);
-            return;
-        }
-
-        if (!config.silent)
-        {
-            const bool with_result = result_json["with_result"].get<bool>();
-            nl::json pub_data = result_json["pub_data"];
-            publish_execution_result(request_context, execution_counter, std::move(pub_data), nl::json::object());
-        }
-
-        auto reply = xeus::create_successful_reply(nl::json::array(), nl::json::object());
-        cb(reply);
+        emscripten::val::module_property("_call_user_code")(execution_counter, config, cb_wrapper, code);
     }
 
     void interpreter::configure_impl()
@@ -162,21 +150,39 @@ namespace xeus_javascript
         );
     }
 
+    void interpreter::js_publish_execution_error(const std::string& error_type, const std::string& error_message, const std::string & error_stack)
+    {
+        xeus::get_interpreter().publish_execution_error(error_type, error_message, {error_stack});
+    }
+
     void export_xinterpreter()
     {
-        em::class_<xeus::xrequest_context>("xrequest_context")
-            .function("header", &xeus::xrequest_context::header)
+
+
+
+
+        em::class_<xeus::execute_request_config>("execute_request_config")
+            .constructor<>()
+            .property("silent", &xeus::execute_request_config::silent)
+            .property("store_history", &xeus::execute_request_config::store_history)
+            .property("allow_stdin", &xeus::execute_request_config::allow_stdin)
         ;
 
         em::class_<xeus::xinterpreter>("xinterpreter")
             .function("publish_stream", &interpreter::publish_stream)
             .function("display_data", &interpreter::display_data)
             .function("update_display_data", &interpreter::update_display_data)
-            .function("publish_execution_error", &interpreter::publish_execution_error)
             .function("publish_execution_result", &interpreter::publish_execution_result)
         ;
 
+        em::class_<send_reply_callback_wrapper>("send_reply_callback_wrapper")
+            .function("call", &send_reply_callback_wrapper::call)
+            .function("reply_success", &send_reply_callback_wrapper::reply_success)
+            .function("reply_error", &send_reply_callback_wrapper::reply_error)
+        ;
+
         em::class_<interpreter, em::base<xeus::xinterpreter>>("Iterpreter")
+            .function("publish_execution_error", &interpreter::js_publish_execution_error)
         ;
 
 

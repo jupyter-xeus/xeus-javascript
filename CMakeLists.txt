@@ -66,11 +66,9 @@ endif()
 # Dependencies
 # ============
 
-set(xtl_REQUIRED_VERSION 0.7.0)
-set(xeus_REQUIRED_VERSION 3.0.5)
+set(xeus_REQUIRED_VERSION 5.0.0)
 
 find_package(xeus-lite REQUIRED)
-find_package(xtl ${xtl_REQUIRED_VERSION} REQUIRED)
 find_package(xeus ${xeus_REQUIRED_VERSION} REQUIRED)
 
 
@@ -84,6 +82,7 @@ if (MSVC)
 endif ()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+    message(STATUS "COMPILER ID: ${CMAKE_CXX_COMPILER_ID}")
     if(NOT EMSCRIPTEN)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused-parameter -Wextra -Wreorder")
     endif()
@@ -92,6 +91,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
     CHECK_CXX_COMPILER_FLAG("-std=c++17" HAS_CPP_17_FLAG)
     if (HAS_CPP_17_FLAG)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+
     else ()
         message(FATAL_ERROR "Unsupported compiler -- xeus requires C++17 support!")
     endif ()
@@ -203,9 +203,12 @@ macro(xeus_javascript_create_target target_name linkage output_name)
                           SOVERSION ${XEUS_JAVASCRIPT_VERSION_MAJOR}
                           OUTPUT_NAME "lib${output_name}")
 
+    target_compile_features(${target_name} PUBLIC cxx_std_17)
+
+
+
     target_compile_definitions(${target_name} PUBLIC "XEUS_JAVASCRIPT_EXPORTS")
 
-    target_compile_features(${target_name} PRIVATE cxx_std_17)
 
     target_include_directories(${target_name}
                                PUBLIC
@@ -218,7 +221,7 @@ macro(xeus_javascript_create_target target_name linkage output_name)
         set(XEUS_JAVASCRIPT_XEUS_TARGET xeus-static)
     endif ()
 
-    target_link_libraries(${target_name} PUBLIC ${XEUS_JAVASCRIPT_XEUS_TARGET} xtl)
+    target_link_libraries(${target_name} PUBLIC ${XEUS_JAVASCRIPT_XEUS_TARGET})
     if (WIN32 OR CYGWIN)
         #
     elseif (APPLE)
@@ -270,7 +273,6 @@ xeus_wasm_link_options(xjavascript "web,worker")
 #
 target_link_options(xjavascript
     PUBLIC "SHELL: -s NO_EXIT_RUNTIME=1"
-    PUBLIC "SHELL: -s ASYNCIFY"
     PUBLIC "SHELL: -s FORCE_FILESYSTEM=1"
     PUBLIC "SHELL: --pre-js ${CMAKE_CURRENT_SOURCE_DIR}/src/pre.js"
     PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/src/post.js"

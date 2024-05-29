@@ -49,9 +49,9 @@ namespace xeus_javascript
         std::string comm_id() const;
         bool kernel() const;
 
-        void open(nl::json parent_header, const nl::json& data, const nl::json& metadata, const em::val& buffers);
-        void close(nl::json parent_header, const nl::json& data, const nl::json& metadata, const em::val& buffers);
-        void send(nl::json parent_header, const nl::json& data, const nl::json& metadata, const em::val& buffers);
+        void open(const nl::json& data, const nl::json& metadata, const em::val& buffers);
+        void close(const nl::json& data, const nl::json& metadata, const em::val& buffers);
+        void send(const nl::json& data, const nl::json& metadata, const em::val& buffers);
         void on_msg(const js_callback_type& callback);
         void on_close(const js_callback_type& callback);
 

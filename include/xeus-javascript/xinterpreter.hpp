@@ -29,14 +29,15 @@ namespace nl = nlohmann;
 namespace xeus_javascript
 {
 
-    void publish_stdout_stream(const std::string& message);
-    void publish_stderr_stream(const std::string& message);
-    void display_data(const std::string& json_str);
-    void update_display_data(const std::string& json_str);
 
-    void publish_execution_result(const std::string jstring);
-    void publish_execution_error(const std::string jstring);
+    struct XEUS_JAVASCRIPT_API send_reply_callback_wrapper
+    {
+        xeus::xinterpreter::send_reply_callback callback;
+        void call(const nl::json& reply) const;
 
+        void reply_success() const;
+        void reply_error(const std::string& error_type, const std::string& error_message, const std::string & error_stack) const;
+    };
 
     class XEUS_JAVASCRIPT_API interpreter : public xeus::xinterpreter
     {
@@ -49,13 +50,13 @@ namespace xeus_javascript
         {
             return "xjavascript";
         }
+        void js_publish_execution_error(const std::string& error_type, const std::string& error_message, const std::string & error_stack);
 
     protected:
 
         void configure_impl() override;
 
-        void execute_request_impl(xeus::xrequest_context request_context,
-                             send_reply_callback cb,
+        void execute_request_impl(send_reply_callback cb,
                              int execution_counter,
                              const std::string& code,
                              xeus::execute_request_config config,
@@ -72,6 +73,7 @@ namespace xeus_javascript
         nl::json kernel_info_request_impl() override;
 
         void shutdown_request_impl() override;
+
 
     };
 
