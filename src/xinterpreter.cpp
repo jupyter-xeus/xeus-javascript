@@ -51,7 +51,7 @@ namespace xeus_javascript
 
     interpreter::interpreter()
     {
-        std::cout<<"build #223"<<std::endl;
+        std::cout<<"build #224"<<std::endl;
         xeus::register_interpreter(this);
     }
 

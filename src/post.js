@@ -396,13 +396,7 @@ async function _call_user_code(execution_counter, config, reply_callback, code) 
         else{
             await result_promise;
         }
-        else{
-            await result_promise;
-        }
-
         reply_callback.reply_success();
-        return;
-
     }
     catch(err){
 
@@ -419,24 +413,26 @@ async function _call_user_code(execution_counter, config, reply_callback, code) 
             }
             Module.get_interpreter().publish_execution_error("C++ Exception", `${msg}`, "");
             reply_callback.reply_error("C++ Exception", `${msg}`, "");
-            return;
         }
-
-
-        // remove a bunch of noise from the stack
-        let err_stack_str = `${err.stack || ""}`;
-        let err_stack_lines = err_stack_str.split("\n");
-        let used_lines = [];
-        for(const line of err_stack_lines){
-            if(line.includes("make_async_from_code ")){
-                break;
+        else{
+            // remove a bunch of noise from the stack
+            let err_stack_str = `${err.stack || ""}`;
+            let err_stack_lines = err_stack_str.split("\n");
+            let used_lines = [];
+            for(const line of err_stack_lines){
+                if(line.includes("make_async_from_code ")){
+                    break;
+                }
+                used_lines.push(line);
             }
-            used_lines.push(line);
+            err_stack_str = used_lines.join("\n");
+            Module.get_interpreter().publish_execution_error(`${err.name || "UnkwownError"}`, `${err.message || ""}`, `${err_stack_str}`);
+            reply_callback.reply_error(`${err.name || "UnkwownError"}`, `${err.message || ""}`, `${err_stack_str}`);
         }
-        err_stack_str = used_lines.join("\n");
-        Module.get_interpreter().publish_execution_error(`${err.name || "UnkwownError"}`, `${err.message || ""}`, `${err_stack_str}`);
-        reply_callback.reply_error(`${err.name || "UnkwownError"}`, `${err.message || ""}`, `${err_stack_str}`);
-        return;
+    }
+    finally{
+        config.delete();
+        reply_callback.delete();
     }
 
 }
