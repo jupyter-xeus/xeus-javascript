@@ -4,6 +4,9 @@
 #include <emscripten/bind.h>
 #include <emscripten/emscripten.h>
 
+// decay_t
+#include <type_traits>
+
 namespace emscripten {
 namespace internal {
 
