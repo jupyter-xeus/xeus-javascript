@@ -113,7 +113,7 @@ set(XEUS_JAVASCRIPT_HEADERS
 
 set(XEUS_JAVASCRIPT_SRC
     src/xinterpreter.cpp
-    src/xcomm.cpp
+
 )
 
 set(XEUS_JAVASCRIPT_MAIN_SRC
