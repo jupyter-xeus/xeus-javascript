@@ -17,6 +17,7 @@ struct BindingType<nl::json> {
     using ValBinding = BindingType<val>;
     using WireType = typename ValBinding::WireType;
 
+    #if __EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_major__ == 1 && __EMSCRIPTEN_tiny__ <= 45
     static WireType toWireType(const nl::json& obj) {
         // as string
         const auto str = obj.dump();
@@ -24,8 +25,19 @@ struct BindingType<nl::json> {
         const auto js_obj = val::global("JSON").call<val>("parse", jstr);
         return ValBinding::toWireType(js_obj);
     }
+    #else
+    template<typename ReturnPolicy = void>
+    static WireType toWireType(const nl::json& obj, rvp::default_tag) {
+        // as string
+        const auto str = obj.dump();
+        const auto jstr = val(str.c_str());
+        const auto js_obj = val::global("JSON").call<val>("parse", jstr);
+        return ValBinding::toWireType(js_obj, rvp::default_tag{});
+    }
+    #endif
 
-    static nl::json fromWireType(WireType value) {
+    template<typename ReturnPolicy = void>
+    static nl::json fromWireType(WireType value ) {
         // first as emscripten::val
         const auto js_obj = ValBinding::fromWireType(value);
         // then as string
