@@ -124,7 +124,8 @@ namespace xeus_javascript
 
     void export_xcomm(){
         em::class_<xcomm>("Comm")
-            .constructor<std::string,  nl::json>()
+            .smart_ptr<std::unique_ptr<xcomm>>("xcomm")
+            .class_function("create", &xcomm::create)
             .function("comm_id", &xcomm::comm_id)
             .function("kernel", &xcomm::kernel)
             .function("open", &xcomm::open)
