@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <memory>
 
 #include "nlohmann/json.hpp"
 
@@ -55,7 +56,7 @@ namespace xeus_javascript
         void on_msg(const js_callback_type& callback);
         void on_close(const js_callback_type& callback);
     
-        static std::unique_ptr<MyClass> create(std::string target_name, nl::json extra_kwargs);
+        static std::unique_ptr<xcomm> create(std::string target_name, nl::json extra_kwargs);
 
 
     private:
