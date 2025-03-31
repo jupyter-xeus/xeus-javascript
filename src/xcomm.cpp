@@ -5,6 +5,7 @@
 *
 * The full license is in the file LICENSE, distributed with this software.
 ****************************************************************************/
+#include <memory>
 
 #include "xcomm.hpp"
 
@@ -33,6 +34,14 @@ namespace xeus_javascript
     )
         : m_comm(target(target_name), id(kwargs))
     {
+    }
+
+     std::unique_ptr<xcomm> xcomm::create(
+        std::string target_name,
+        nl::json kwargs
+    )
+    {
+        return std::make_unique<xcomm>(target_name, kwargs);
     }
 
     xcomm::xcomm(xeus::xcomm&& comm)
