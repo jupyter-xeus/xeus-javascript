@@ -671,7 +671,7 @@ let ijs = {
 }
 
 async function async_init( kernel_root_url, pkg_root_url, verbose){
-    Module._com_manager = new Module.CommManager();
+    // Module._com_manager = new Module.CommManager();
 }
 
 
@@ -686,7 +686,7 @@ Module.FS = FS;
 Module.ijs = ijs;
 
 
-function get_comm_manager(){
-    return Module._com_manager;
-}
-Module.get_comm_manager = get_comm_manager;
+// function get_comm_manager(){
+//     return Module._com_manager;
+// }
+// Module.get_comm_manager = get_comm_manager;
