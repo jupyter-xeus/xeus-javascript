@@ -17,7 +17,7 @@ struct BindingType<nl::json> {
     using ValBinding = BindingType<val>;
     using WireType = typename ValBinding::WireType;
 
-    #if __EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_major__ == 1 && __EMSCRIPTEN_tiny__ <= 45
+    #if __EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ <= 45
     static WireType toWireType(const nl::json& obj) {
         // as string
         const auto str = obj.dump();
