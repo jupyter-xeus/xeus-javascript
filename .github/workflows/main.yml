@@ -39,12 +39,11 @@ jobs:
 
 
 
-          micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
+          micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32 --yes
 
           mkdir build
           pushd build
 
-          export EMPACK_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-javascript-wasm-build
           export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-javascript-wasm-host
           export CMAKE_PREFIX_PATH=$PREFIX
           export CMAKE_SYSTEM_PREFIX_PATH=$PREFIX
