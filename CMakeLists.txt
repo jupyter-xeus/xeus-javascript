@@ -267,9 +267,9 @@ include(WasmBuildOptions)
 add_executable(xjavascript src/main_emscripten_kernel.cpp )
 target_compile_options(xjavascript
 PRIVATE "-fPIC"
-PUBLIC "SHELL -s WASM_BIGINT"
+PUBLIC "SHELL -s WASM_BIGINT=1"
 PUBLIC "SHELL -sALLOW_MEMORY_GROWTH=1"
-
+`
 )
 XEUS_JAVASCRIPT_set_kernel_options(xjavascript)
 xeus_wasm_compile_options(xjavascript)
@@ -277,7 +277,7 @@ xeus_wasm_link_options(xjavascript "web,worker")
 
 #
 target_link_options(xjavascript
-    PUBLIC "SHELL -s WASM_BIGINT"
+    PUBLIC "SHELL -s WASM_BIGINT=1"
     PUBLIC "SHELL -s ALLOW_MEMORY_GROWTH=1"
     PUBLIC "SHELL: -s MAIN_MODULE=1"
     PUBLIC "SHELL: -s NO_EXIT_RUNTIME=1"
