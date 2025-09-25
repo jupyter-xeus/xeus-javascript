@@ -685,8 +685,12 @@ Module._complete_request = _complete_request;
 Module.FS = FS;
 Module.ijs = ijs;
 
+if (!('wasmTable' in Module)) {
+    Module['wasmTable'] = wasmTable
+}
 
-// function get_comm_manager(){
-//     return Module._com_manager;
-// }
-// Module.get_comm_manager = get_comm_manager;
+Module['FS'] = FS
+Module['PATH'] = PATH
+Module['LDSO'] = LDSO
+Module['getDylinkMetadata'] = getDylinkMetadata
+Module['loadDynamicLibrary'] = loadDynamicLibrary

@@ -6,7 +6,7 @@
 #The full license is in the file LICENSE, distributed with this software.
 #############################################################################
 
-cmake_minimum_required(VERSION 3.4.3)
+cmake_minimum_required(VERSION 4.0.0)
 project(xeus-javascript)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
@@ -57,7 +57,7 @@ if(EMSCRIPTEN)
     SET(XEUS_JAVASCRIPT_BUILD_STATIC ON)
     SET(XEUS_JAVASCRIPT_BUILD_SHARED OFF)
     SET(XEUS_JAVASCRIPT_BUILD_EXECUTABLE OFF)
-    SET(XEUS_JAVASCRIPT_USE_SHARED_XEUS OFF)
+    SET(XEUS_JAVASCRIPT_USE_SHARED_XEUS ON)
     SET(XEUS_JAVASCRIPT_USE_SHARED_XEUS_JAVASCRIPT OFF)
     SET(XEUS_JAVASCRIPT_BUILD_TESTS OFF)
 endif()
@@ -261,17 +261,28 @@ if (XEUS_JAVASCRIPT_BUILD_STATIC)
     list(APPEND XEUS_JAVASCRIPT_TARGETS xeus-javascript-static)
 endif ()
 
+target_link_options(xeus-javascript-static
+    PUBLIC "SHELL: -s WASM_BIGINT=1"
+    PUBLIC "SHELL: -s ALLOW_MEMORY_GROWTH=1"
+)
 
 include(WasmBuildOptions)
 
 add_executable(xjavascript src/main_emscripten_kernel.cpp )
-target_compile_options(xjavascript PRIVATE -fPIC)
+target_compile_options(xjavascript
+PRIVATE "-fPIC"
+PUBLIC "SHELL: -s WASM_BIGINT=1"
+PUBLIC "SHELL: -s ALLOW_MEMORY_GROWTH=1"
+)
 XEUS_JAVASCRIPT_set_kernel_options(xjavascript)
 xeus_wasm_compile_options(xjavascript)
 xeus_wasm_link_options(xjavascript "web,worker")
 
 #
 target_link_options(xjavascript
+    PUBLIC "SHELL: -s WASM_BIGINT=1"
+    PUBLIC "SHELL: -s ALLOW_MEMORY_GROWTH=1"
+    PUBLIC "SHELL: -s MAIN_MODULE=1"
     PUBLIC "SHELL: -s NO_EXIT_RUNTIME=1"
     PUBLIC "SHELL: -s FORCE_FILESYSTEM=1"
     PUBLIC "SHELL: --pre-js ${CMAKE_CURRENT_SOURCE_DIR}/src/pre.js"

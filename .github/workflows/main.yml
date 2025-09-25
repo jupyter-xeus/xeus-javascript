@@ -1,11 +1,10 @@
 name: CI
 on:
-
   workflow_dispatch:
   pull_request:
   push:
     branches:
-     - main
+    - main
 
   schedule:
     - cron: '0 2 * * *' # run at 2 AM UTC
@@ -17,8 +16,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix:
-        emsdk_ver: ["3.1.45"]
+
 
     steps:
       - uses: actions/checkout@v4
@@ -33,30 +31,19 @@ jobs:
           environment-name: xeus-javascript-wasm-build
 
       ################################################################
-      #  emsdk itself
-      ################################################################
-      - name: Setup emsdk
-        shell: bash -l {0}
-        run: |
-
-          emsdk install ${{ matrix.emsdk_ver }}
-
-      ################################################################
       # C++ build
       ################################################################
       - name: Build
         shell: bash -l {0}
         run: |
 
-          emsdk activate ${{ matrix.emsdk_ver }}
 
-          source $CONDA_EMSDK_DIR/emsdk_env.sh
-          micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
+
+          micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32 --yes
 
           mkdir build
           pushd build
 
-          export EMPACK_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-javascript-wasm-build
           export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-javascript-wasm-host
           export CMAKE_PREFIX_PATH=$PREFIX
           export CMAKE_SYSTEM_PREFIX_PATH=$PREFIX
@@ -97,7 +84,7 @@ jobs:
       # upload to github pages
       ################################################################
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: _output
 
@@ -126,4 +113,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v3 # or specific "vX.X.X" version tag for this action
+        uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
