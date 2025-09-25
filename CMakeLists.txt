@@ -261,6 +261,10 @@ if (XEUS_JAVASCRIPT_BUILD_STATIC)
     list(APPEND XEUS_JAVASCRIPT_TARGETS xeus-javascript-static)
 endif ()
 
+target_link_options(xeus-javascript-static
+    PUBLIC "SHELL: -s WASM_BIGINT=1"
+    PUBLIC "SHELL: -s ALLOW_MEMORY_GROWTH=1"
+)
 
 include(WasmBuildOptions)
 
