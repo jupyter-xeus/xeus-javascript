@@ -1,11 +1,10 @@
 name: CI
 on:
-
   workflow_dispatch:
   pull_request:
   push:
     branches:
-     - main
+    - main
 
   schedule:
     - cron: '0 2 * * *' # run at 2 AM UTC
@@ -17,8 +16,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix:
-        emsdk_ver: ["3.1.45"]
+
 
     steps:
       - uses: actions/checkout@v4
@@ -48,9 +46,8 @@ jobs:
         shell: bash -l {0}
         run: |
 
-          emsdk activate ${{ matrix.emsdk_ver }}
 
-          source $CONDA_EMSDK_DIR/emsdk_env.sh
+
           micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
 
           mkdir build

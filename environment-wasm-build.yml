@@ -1,11 +1,13 @@
 name: xeus-javascript-wasm-build
 channels:
+  - https://repo.prefix.dev/emscripten-forge-dev
   - conda-forge
 dependencies:
+  - cmake
+  - pkg-config
+  - emscripten_emscripten-wasm32==3.1.73
   - anywidget
   - cmake
-  - emsdk >=3.1.46
-  - empack >=3.2.0
   - jupyter_server  # to enable contents
   - jupyterlite-core
   - jupyterlite-xeus
