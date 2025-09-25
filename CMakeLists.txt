@@ -272,7 +272,7 @@ xeus_wasm_link_options(xjavascript "web,worker")
 
 #
 target_link_options(xjavascript
-    PUBLIC "SHELL: -s sMAIN_MODULE=1"
+    PUBLIC "SHELL: -sMAIN_MODULE=1"
     PUBLIC "SHELL: -s NO_EXIT_RUNTIME=1"
     PUBLIC "SHELL: -s FORCE_FILESYSTEM=1"
     PUBLIC "SHELL: --pre-js ${CMAKE_CURRENT_SOURCE_DIR}/src/pre.js"
