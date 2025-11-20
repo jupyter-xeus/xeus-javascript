@@ -48,18 +48,18 @@ struct BindingType<nl::json> {
 };
 
 
-template <typename T>
-using is_decayed_json = std::is_same<std::decay_t<T>, nl::json>;
+// template <typename T>
+// using is_decayed_json = std::is_same<std::decay_t<T>, nl::json>;
 
-template <typename T>
-using enable_if_decayed_json = typename std::enable_if<is_decayed_json<T>::value, void>::type;
+// template <typename T>
+// using enable_if_decayed_json = typename std::enable_if<is_decayed_json<T>::value, void>::type;
 
-template<class T>
-struct TypeID<T, enable_if_decayed_json<T> > {
-    static constexpr TYPEID get() {
-        return LightTypeID<val>::get();
-    }
-};
+// template<class T>
+// struct TypeID<nlohmann::json>
+//     static constexpr TYPEID get() {
+//         return LightTypeID<val>::get();
+//     }
+// };
 
 
 
