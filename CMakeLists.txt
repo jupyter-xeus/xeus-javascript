@@ -60,6 +60,12 @@ if(EMSCRIPTEN)
     SET(XEUS_JAVASCRIPT_USE_SHARED_XEUS ON)
     SET(XEUS_JAVASCRIPT_USE_SHARED_XEUS_JAVASCRIPT OFF)
     SET(XEUS_JAVASCRIPT_BUILD_TESTS OFF)
+
+
+    if (EMSCRIPTEN_VERSION VERSION_LESS "4.0.0")
+        # c-definitions for older emscripten versions
+        add_compile_definitions(XEUS_JAVASCRIPT_EMSCRIPTEN_OLD)
+    endif()
 endif()
 
 
